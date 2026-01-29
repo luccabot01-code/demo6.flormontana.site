@@ -64,7 +64,7 @@ export const RsvpForm: React.FC<RsvpFormProps> = ({ slug, onSuccess }) => {
         {/* Content */}
         <div className="p-8 md:p-12 relative z-20">
           <div className="text-center mb-10">
-            <p className="font-script text-4xl text-rose-500 mb-4 drop-shadow-sm">Please Respond</p>
+            <p className="font-script text-4xl mb-4 drop-shadow-sm" style={{ color: 'var(--color-primary-600)' }}>Please Respond</p>
             <h1 className="font-serif text-5xl text-stone-800 uppercase tracking-[0.2em] font-light">RSVP</h1>
             <div className="flex items-center justify-center gap-4 mt-6 opacity-40">
               <div className="h-[1px] w-12 bg-stone-400"></div>

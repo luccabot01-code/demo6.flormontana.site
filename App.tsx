@@ -129,7 +129,9 @@ const App: React.FC = () => {
 
   const handleClosePreview = () => {
     setIsPreview(false);
-    setView('link');
+    // If we have a slug, we assume we want to go back to the dashboard/hub
+    // The 'link' view is part of the setup flow which customers don't see
+    setView('dashboard');
   };
 
   // Helper to format name from slug if real name isn't set yet
@@ -144,27 +146,28 @@ const App: React.FC = () => {
 
   // Fetch Theme
   useEffect(() => {
-    const fetchTheme = async () => {
+    const fetchThemeAndName = async () => {
       if (!coupleSlug) return;
       const supabase = getSupabase();
       try {
         const { data, error } = await supabase
           .from('wedding_template_couples')
-          .select('theme_id')
+          .select('theme_id, couple_name')
           .eq('slug', coupleSlug)
           .single();
 
-        if (data && data.theme_id) {
-          applyTheme(data.theme_id);
+        if (data) {
+          if (data.theme_id) applyTheme(data.theme_id);
+          if (data.couple_name) setCoupleName(data.couple_name);
         } else {
           // Default or fallback
           applyTheme('rose');
         }
       } catch (e) {
-        console.error("Error fetching theme:", e);
+        console.error("Error fetching data:", e);
       }
     };
-    fetchTheme();
+    fetchThemeAndName();
   }, [coupleSlug]);
 
   return (
@@ -223,8 +226,8 @@ const App: React.FC = () => {
 
           {view === 'success' && (
             <div className="text-center animate-slide-up bg-white/90 backdrop-blur-xl p-12 rounded-[2rem] shadow-2xl border border-white/60 max-w-md mx-auto relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-300 via-green-500 to-green-300"></div>
-              <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
+              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-rose-300 via-rose-500 to-rose-300"></div>
+              <div className="w-24 h-24 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
                 <CheckCircle2 className="w-12 h-12 text-green-500" strokeWidth={1.5} />
               </div>
               <h2 className="font-serif text-3xl mb-4 text-stone-800">RSVP Received</h2>
@@ -243,11 +246,10 @@ const App: React.FC = () => {
           )}
 
           {view === 'dashboard' && (
-            <Dashboard slug={coupleSlug} onBack={() => {
-              const newUrl = `/?setup=${coupleSlug}`;
-              updateHistory(newUrl);
-              setView('link');
-            }} />
+            <Dashboard
+              slug={coupleSlug}
+              onPreview={handlePreview}
+            />
           )}
         </div>
       </main>

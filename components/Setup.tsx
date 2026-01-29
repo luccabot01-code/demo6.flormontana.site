@@ -49,18 +49,22 @@ export const Setup: React.FC<SetupProps> = ({ onSuccess }) => {
 
       if (checkError && checkError.code !== 'PGRST116') throw checkError;
 
-      if (!existingHost) {
-        // Create new host
-        const { error: insertError } = await supabase
-          .from('wedding_template_couples')
-          .insert([{
-            slug: slug,
-            couple_name: names,
-            theme_id: themeId
-          }])
-          .single();
-        if (insertError) throw insertError;
+      if (existingHost) {
+        setError('This couple name is already taken. Please try a different name.');
+        setLoading(false);
+        return;
       }
+
+      // Create new host
+      const { error: insertError } = await supabase
+        .from('wedding_template_couples')
+        .insert([{
+          slug: slug,
+          couple_name: names,
+          theme_id: themeId
+        }])
+        .single();
+      if (insertError) throw insertError;
 
       onSuccess(slug, names);
     } catch (err: any) {

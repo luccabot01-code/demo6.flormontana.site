@@ -46,10 +46,13 @@ export const LinkShare: React.FC<LinkShareProps> = ({ slug, coupleName, onNewFor
       <div className="bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-2xl border border-white/50 overflow-hidden ring-1 ring-stone-100">
 
         {/* Header */}
-        <div className="bg-gradient-to-br from-rose-900 via-rose-800 to-rose-900 text-white p-10 text-center relative overflow-hidden">
+        <div
+          className="bg-gradient-to-br from-[var(--color-primary-900)] via-[var(--color-primary-800)] to-[var(--color-primary-900)] text-white p-10 text-center relative overflow-hidden"
+          style={{ backgroundColor: 'var(--color-primary-900)' }} // Fallback
+        >
           <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
           <h2 className="font-serif text-3xl md:text-4xl mb-3 relative z-10">Welcome, {coupleName}</h2>
-          <p className="opacity-90 font-sans font-light relative z-10 text-rose-100">Your wedding page is live.</p>
+          <p className="opacity-90 font-sans font-light relative z-10 text-[var(--color-primary-100)]">Your wedding page is live.</p>
         </div>
 
         <div className="p-8 md:p-12 space-y-10">
@@ -85,13 +88,18 @@ export const LinkShare: React.FC<LinkShareProps> = ({ slug, coupleName, onNewFor
 
                 <div className="mt-6 pt-6 border-t border-stone-200/60">
                   <div className="flex items-start gap-3">
-                    <Palette size={20} className="text-purple-500 mt-1" />
+                    <Palette size={20} className="text-rose-400 mt-1" />
                     <div>
-                      <h4 className="font-bold text-stone-700 text-sm mb-1">Server Note</h4>
-                      <p className="text-xs text-stone-500 leading-relaxed">
-                        To use these clean URLs ({`.../rsvp/${slug}`}), ensure your host redirects all 404s to index.html (SPA Rewrite).<br />
-                        <span className="opacity-70">If using simple hosting, you can still use: <code>?rsvp={slug}</code></span>
-                      </p>
+                      <h4 className="font-bold text-stone-700 text-sm mb-2">How it Works</h4>
+
+                      <div className="text-xs text-stone-500 leading-relaxed">
+                        <ul className="list-disc pl-4 space-y-1 opacity-90">
+                          <li>Share the link above with your guests via WhatsApp, Email, or Instagram.</li>
+                          <li>Guests will see your personalized page and fill out the RSVP form.</li>
+                          <li>You can track all responses in real-time by clicking "View Dashboard" below.</li>
+                          <li>Use the Dashboard to manage guests and export the list to Excel/CSV.</li>
+                        </ul>
+                      </div>
                     </div>
                   </div>
                 </div>
