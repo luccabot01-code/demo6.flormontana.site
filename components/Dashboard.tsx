@@ -253,32 +253,92 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
               <div className="absolute inset-0 bg-gradient-to-t from-[#fffdf9] via-transparent to-transparent opacity-60" />
             </div>
           )}
-          <div className="p-6 md:p-10 relative">
-            {/* Mobile Hamburger Menu */}
-            <div className="absolute top-4 right-4 z-50 md:hidden">
-              <HamburgerMenu
-                onUploadClick={() => fileInputRef.current?.click()}
-                onPreviewClick={onPreview}
-                onRefreshClick={fetchResponses}
-                onExportClick={exportCSV}
-                onDownloadQR={handleDownloadQR}
-                qrLink={cleanLink}
-                uploading={uploading}
-                loading={loading}
+
+          {/* Mobile Hamburger Menu - Absolute positioned relative to Header */}
+          <HamburgerMenu
+            onUploadClick={() => fileInputRef.current?.click()}
+            onPreviewClick={onPreview}
+            onRefreshClick={fetchResponses}
+            onExportClick={exportCSV}
+            onDownloadQR={handleDownloadQR}
+            qrLink={cleanLink}
+            uploading={uploading}
+            loading={loading}
+          />
+
+          {/* Floating Desktop Actions Panel */}
+          <div className="hidden md:flex absolute top-6 right-6 z-20 items-center gap-2 p-2 bg-white/60 backdrop-blur-md rounded-2xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.06)] hover:bg-white/80 transition-all duration-300">
+            <div className="relative">
+              <input
+                type="file"
+                ref={fileInputRef}
+                hidden
+                accept="image/*"
+                onChange={handleImageUpload}
+                disabled={uploading}
               />
+              <Button
+                onClick={() => fileInputRef.current?.click()}
+                className="text-white font-serif italic px-5 h-10 border-none cursor-pointer flex items-center justify-center transition-all hover:opacity-90 active:scale-95 text-sm"
+                style={{
+                  backgroundColor: 'var(--color-primary-500)',
+                  boxShadow: '0 4px 12px -2px var(--color-primary-100)'
+                }}
+              >
+                {uploading ? <RefreshCw size={14} className="animate-spin mr-2" /> : <Camera size={14} className="mr-2" />}
+                {uploading ? '...' : 'Upload'}
+              </Button>
             </div>
 
-            {/* Decorative corner */}
-            <div className="absolute top-0 right-0 p-4 opacity-10">
-              <svg width="100" height="100" viewBox="0 0 100 100" fill="currentColor" className="text-rose-900">
+            <Button
+              onClick={onPreview}
+              className="text-white font-serif italic px-5 h-10 border-none flex items-center justify-center transition-all hover:opacity-90 active:scale-95 text-sm"
+              style={{
+                backgroundColor: 'var(--color-primary-500)',
+                boxShadow: '0 4px 12px -2px var(--color-primary-100)'
+              }}
+            >
+              <Eye size={14} className="mr-2" /> Preview
+            </Button>
+
+            <div className="h-6 w-[1px] bg-white/40 mx-1"></div>
+
+            <Button
+              onClick={fetchResponses}
+              className="text-white px-3 h-10 border-none flex items-center justify-center transition-all hover:opacity-90 active:scale-95"
+              style={{
+                backgroundColor: 'var(--color-primary-500)',
+                boxShadow: '0 4px 12px -2px var(--color-primary-100)'
+              }}
+            >
+              <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+            </Button>
+
+            <Button
+              onClick={exportCSV}
+              className="text-white font-serif tracking-wide px-5 h-10 border-none flex items-center justify-center transition-all hover:opacity-90 active:scale-95 text-sm"
+              style={{
+                backgroundColor: 'var(--color-primary-500)',
+                boxShadow: '0 4px 12px -2px var(--color-primary-100)'
+              }}
+            >
+              <Download size={14} className="mr-2" /> .CSV
+            </Button>
+          </div>
+          <div className="p-6 md:p-10 relative">
+
+
+            {/* Mobile Decorative corner (optional, keeping it clean) */}
+            <div className="absolute top-0 right-0 p-4 opacity-10 md:hidden">
+              <svg width="80" height="80" viewBox="0 0 100 100" fill="currentColor" className="text-rose-900">
                 <path d="M50 0C50 27.614 27.614 50 0 50C27.614 50 50 72.386 50 100C50 72.386 72.386 50 100 50C72.386 50 50 27.614 50 0Z" />
               </svg>
             </div>
 
             <div className="flex flex-col md:flex-row justify-between items-center gap-6 relative z-10 w-full">
-              <div className="text-center md:text-left min-w-0">
+              <div className="text-center md:text-left min-w-0 max-w-full">
                 <h1
-                  className="font-script text-5xl md:text-7xl tracking-normal capitalize whitespace-nowrap"
+                  className="font-script text-5xl md:text-7xl tracking-normal capitalize break-words leading-tight"
                   style={{ color: 'var(--color-primary-600)' }}
                 >
                   {(loading && !displayName) ? (
@@ -289,60 +349,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
                 </h1>
               </div>
 
-              <div className="hidden md:flex flex-nowrap items-center justify-end gap-3 shrink-0">
-                <div className="relative">
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    hidden
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    disabled={uploading}
-                  />
-                  <Button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="text-white font-serif italic px-6 border-none cursor-pointer flex items-center justify-center transition-all hover:opacity-90 active:scale-95"
-                    style={{
-                      backgroundColor: 'var(--color-primary-500)',
-                      boxShadow: '0 8px 16px -4px var(--color-primary-100)'
-                    }}
-                  >
-                    {uploading ? <RefreshCw size={16} className="animate-spin mr-2" /> : <Camera size={16} className="mr-2" />}
-                    {uploading ? 'Uploading...' : 'Upload Photo'}
-                  </Button>
-                </div>
 
-                <Button
-                  onClick={onPreview}
-                  className="text-white font-serif italic px-6 border-none flex items-center justify-center transition-all hover:opacity-90 active:scale-95"
-                  style={{
-                    backgroundColor: 'var(--color-primary-500)',
-                    boxShadow: '0 8px 16px -4px var(--color-primary-100)'
-                  }}
-                >
-                  <Eye size={16} className="mr-2" /> Preview RSVP
-                </Button>
-                <Button
-                  onClick={fetchResponses}
-                  className="text-white px-6 border-none flex items-center justify-center transition-all hover:opacity-90 active:scale-95"
-                  style={{
-                    backgroundColor: 'var(--color-primary-500)',
-                    boxShadow: '0 8px 16px -4px var(--color-primary-100)'
-                  }}
-                >
-                  <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-                </Button>
-                <Button
-                  onClick={exportCSV}
-                  className="text-white font-serif tracking-wide px-8 border-none flex items-center justify-center transition-all hover:opacity-90 active:scale-95"
-                  style={{
-                    backgroundColor: 'var(--color-primary-500)',
-                    boxShadow: '0 8px 20px -4px var(--color-primary-200)'
-                  }}
-                >
-                  <Download size={16} className="mr-2" /> Export .CSV
-                </Button>
-              </div>
             </div>
           </div>
 

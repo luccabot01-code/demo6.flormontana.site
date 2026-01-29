@@ -32,41 +32,47 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
 
     return (
         <>
-            {/* Hamburger Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="relative z-50 w-10 h-10 flex flex-col items-center justify-center gap-1.5 bg-rose-500 rounded-lg shadow-lg md:hidden"
+                className={`absolute z-50 w-12 h-12 flex flex-col items-center justify-center gap-1.5 bg-rose-500 rounded-xl shadow-lg md:hidden transition-all duration-300 ${isOpen ? 'opacity-0 scale-90 pointer-events-none' : 'opacity-100 scale-100'}`}
+                style={{ top: '16px', right: '16px' }}
                 aria-label="Menu"
             >
-                <span
-                    className={`block w-5 h-0.5 bg-white rounded-full transition-all duration-300 ease-out ${isOpen ? 'rotate-45 translate-y-2' : ''
-                        }`}
-                />
-                <span
-                    className={`block w-5 h-0.5 bg-white rounded-full transition-all duration-300 ease-out ${isOpen ? 'opacity-0 scale-0' : ''
-                        }`}
-                />
-                <span
-                    className={`block w-5 h-0.5 bg-white rounded-full transition-all duration-300 ease-out ${isOpen ? '-rotate-45 -translate-y-2' : ''
-                        }`}
-                />
+                <span className="block w-6 h-0.5 bg-white rounded-full" />
+                <span className="block w-6 h-0.5 bg-white rounded-full" />
+                <span className="block w-6 h-0.5 bg-white rounded-full" />
             </button>
 
-            {/* Backdrop */}
+            {/* Backdrop - Tapping here also closes the menu */}
             <div
-                className={`fixed inset-0 z-40 bg-black/30 backdrop-blur-sm transition-opacity duration-300 md:hidden ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+                className={`fixed inset-0 z-40 bg-black/40 backdrop-blur-md transition-opacity duration-300 md:hidden ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
                     }`}
                 onClick={() => setIsOpen(false)}
             />
 
-            {/* Slide-in Menu */}
+            {/* Slide-in Menu with Swipe-to-Close */}
             <div
-                className={`fixed top-0 right-0 z-40 h-full w-72 bg-white shadow-2xl transform transition-transform duration-300 ease-out md:hidden ${isOpen ? 'translate-x-0' : 'translate-x-full'
+                className={`fixed top-0 right-0 z-40 h-full w-80 bg-white shadow-2xl transform transition-transform duration-300 ease-out md:hidden ${isOpen ? 'translate-x-0' : 'translate-x-full'
                     }`}
+                onTouchStart={(e) => {
+                    const touch = e.touches[0];
+                    const startX = touch.clientX;
+                    const handleTouchMove = (moveEvent: TouchEvent) => {
+                        const currentX = moveEvent.touches[0].clientX;
+                        if (currentX - startX > 50) { // Swipe right to close
+                            setIsOpen(false);
+                            document.removeEventListener('touchmove', handleTouchMove as any);
+                        }
+                    };
+                    document.addEventListener('touchmove', handleTouchMove as any, { passive: true });
+                    document.addEventListener('touchend', () => {
+                        document.removeEventListener('touchmove', handleTouchMove as any);
+                    }, { once: true });
+                }}
             >
-                {/* Menu Header */}
-                <div className="flex items-center justify-between p-6 border-b border-stone-100">
-                    <span className="font-serif text-lg text-stone-800">Actions</span>
+                {/* Menu Header (Simplified, no X button) */}
+                <div className="flex items-center justify-start p-8 border-b border-stone-100">
+                    <span className="font-serif text-2xl text-stone-800 tracking-wide">Actions</span>
                 </div>
 
                 {/* Menu Items */}
@@ -153,8 +159,9 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
                 </div>
 
                 {/* Menu Footer */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-stone-100 bg-white">
-                    <p className="text-xs text-stone-400 text-center">
+                <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-stone-100 bg-white shadow-[0_-4px_12px_rgba(0,0,0,0.02)]">
+                    <p className="text-xs text-stone-400 text-center flex items-center justify-center gap-2">
+                        <span className="w-1 h-1 rounded-full bg-stone-300 animate-pulse"></span>
                         Swipe right or tap outside to close
                     </p>
                 </div>

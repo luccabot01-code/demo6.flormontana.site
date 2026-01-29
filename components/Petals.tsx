@@ -10,21 +10,21 @@ const Petals: React.FC = () => {
     const createPetal = () => {
       const petal = document.createElement('div');
       petal.className = 'absolute opacity-60 rounded-full pointer-events-none';
-      
+
       // Randomize styles
       const size = Math.random() * 10 + 5;
       const startLeft = Math.random() * 100;
       const duration = Math.random() * 5 + 5;
       const rotation = Math.random() * 360;
-      
+
       petal.style.width = `${size}px`;
       petal.style.height = `${size}px`;
-      petal.style.background = Math.random() > 0.5 ? '#fda4af' : '#fff1f2'; // rose-300 or rose-50
+      petal.style.background = Math.random() > 0.5 ? 'var(--color-primary-300)' : 'var(--color-primary-100)'; // Dynamic theme colors
       petal.style.left = `${startLeft}%`;
       petal.style.top = '-20px';
       petal.style.transform = `rotate(${rotation}deg)`;
       petal.style.transition = `top ${duration}s linear, transform ${duration}s ease-in-out`;
-      
+
       container.appendChild(petal);
 
       // Animate
