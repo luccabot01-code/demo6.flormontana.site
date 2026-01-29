@@ -5,29 +5,13 @@ import { Check, X, Users, MessageSquare, Phone, Mail, User } from 'lucide-react'
 
 interface RsvpFormProps {
   slug: string;
+  coverImage: string | null;
   onSuccess: () => void;
 }
 
-export const RsvpForm: React.FC<RsvpFormProps> = ({ slug, onSuccess }) => {
+export const RsvpForm: React.FC<RsvpFormProps> = ({ slug, coverImage, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [attendance, setAttendance] = useState<'yes' | 'no' | null>(null);
-  const [coverImage, setCoverImage] = useState<string | null>(null);
-
-  React.useEffect(() => {
-    const fetchHost = async () => {
-      const supabase = getSupabase();
-      const { data: host } = await supabase
-        .from('wedding_template_couples')
-        .select('cover_image_url')
-        .eq('slug', slug)
-        .single();
-
-      if (host) {
-        setCoverImage(host.cover_image_url);
-      }
-    };
-    fetchHost();
-  }, [slug]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

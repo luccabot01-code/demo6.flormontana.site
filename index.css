@@ -11,7 +11,27 @@
   --color-primary-900: #881337;
 }
 
+html {
+  scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
   margin: 0;
   font-family: 'Lato', sans-serif;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
 }
+
+/* Prevent pull-to-refresh on mobile */
+html, body {
+  overscroll-behavior-y: none;
+}
+
+/* Smooth animations for all transitions */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+

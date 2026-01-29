@@ -14,6 +14,8 @@ const App: React.FC = () => {
   const [view, setView] = useState<ViewState>('setup');
   const [coupleSlug, setCoupleSlug] = useState<string>('');
   const [coupleName, setCoupleName] = useState<string>(''); // For display purposes
+  const [isLoadingName, setIsLoadingName] = useState(true);
+  const [coverImage, setCoverImage] = useState<string | null>(null);
   const [isPreview, setIsPreview] = useState(false);
 
   // Routing Logic
@@ -152,22 +154,30 @@ const App: React.FC = () => {
       try {
         const { data, error } = await supabase
           .from('wedding_template_couples')
-          .select('theme_id, couple_name')
+          .select('theme_id, couple_name, cover_image_url')
           .eq('slug', coupleSlug)
           .single();
 
         if (data) {
           if (data.theme_id) applyTheme(data.theme_id);
           if (data.couple_name) setCoupleName(data.couple_name);
+          if (data.cover_image_url) setCoverImage(data.cover_image_url);
         } else {
           // Default or fallback
           applyTheme('rose');
         }
       } catch (e) {
         console.error("Error fetching data:", e);
+      } finally {
+        setIsLoadingName(false);
       }
     };
-    fetchThemeAndName();
+    if (coupleSlug) {
+      setIsLoadingName(true);
+      fetchThemeAndName();
+    } else {
+      setIsLoadingName(false);
+    }
   }, [coupleSlug]);
 
   return (
@@ -183,7 +193,11 @@ const App: React.FC = () => {
         {(view === 'form' || view === 'success') && (
           <header className="mb-12 text-center animate-fade-in select-none pt-12">
             <h1 className="font-script text-6xl md:text-8xl mb-6 drop-shadow-sm text-rose-600 pb-2 leading-relaxed">
-              {getDisplayName()}
+              {isLoadingName ? (
+                <span className="opacity-0">Loading</span>
+              ) : (
+                getDisplayName()
+              )}
             </h1>
             <p className="font-serif italic text-stone-500 tracking-[0.2em] uppercase text-sm md:text-base">
               Join us on our special day
@@ -219,6 +233,7 @@ const App: React.FC = () => {
               )}
               <RsvpForm
                 slug={coupleSlug}
+                coverImage={coverImage}
                 onSuccess={handleRsvpSuccess}
               />
             </>
@@ -248,7 +263,9 @@ const App: React.FC = () => {
           {view === 'dashboard' && (
             <Dashboard
               slug={coupleSlug}
+              coverImage={coverImage}
               onPreview={handlePreview}
+              onCoverUpdate={setCoverImage}
             />
           )}
         </div>

@@ -5,13 +5,16 @@ import { Button } from './ui/Button';
 import { RefreshCw, Download, Trash2, Users, CheckCircle2, XCircle, Mail, MessageSquare, Phone, Copy, Link as LinkIcon, QrCode as QrIcon, Eye, Palette, Camera } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { Modal } from './ui/Modal';
+import { HamburgerMenu } from './ui/HamburgerMenu';
 
 interface DashboardProps {
   slug: string;
+  coverImage: string | null;
   onPreview: () => void;
+  onCoverUpdate: (url: string) => void;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ slug, onPreview }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPreview, onCoverUpdate }) => {
   const [responses, setResponses] = useState<RsvpResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<DashboardStats>({ total: 0, accepted: 0, declined: 0, totalGuests: 0 });
@@ -204,6 +207,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, onPreview }) => {
           .update({ cover_image_url: publicUrl })
           .eq('id', host.id);
 
+        onCoverUpdate(publicUrl);
+
         setModalConfig({
           isOpen: true,
           type: 'success',
@@ -237,120 +242,175 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, onPreview }) => {
       />
       <div className="w-full max-w-6xl mx-auto space-y-10 animate-fade-in pb-16 px-4 md:px-0">
         {/* Header Section */}
-        <div className="relative bg-[#fffdf9] p-10 rounded-[4px] border border-stone-200 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden">
-          {/* Decorative corner */}
-          <div className="absolute top-0 right-0 p-4 opacity-10">
-            <svg width="100" height="100" viewBox="0 0 100 100" fill="currentColor" className="text-rose-900">
-              <path d="M50 0C50 27.614 27.614 50 0 50C27.614 50 50 72.386 50 100C50 72.386 72.386 50 100 50C72.386 50 50 27.614 50 0Z" />
-            </svg>
-          </div>
-
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8 relative z-10">
-            <div className="text-center md:text-left">
-              <h1
-                className="font-script text-6xl md:text-7xl tracking-normal capitalize"
-                style={{ color: 'var(--color-primary-600)' }}
-              >
-                {displayName || prettyName}
-              </h1>
+        <div className="relative bg-[#fffdf9] rounded-[4px] border border-stone-200 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden">
+          {coverImage && (
+            <div className="w-full h-48 md:h-64 relative overflow-hidden">
+              <img
+                src={coverImage}
+                alt="Wedding Cover"
+                className="w-full h-full object-cover animate-fade-in"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#fffdf9] via-transparent to-transparent opacity-60" />
+            </div>
+          )}
+          <div className="p-6 md:p-10 relative">
+            {/* Mobile Hamburger Menu */}
+            <div className="absolute top-4 right-4 z-50 md:hidden">
+              <HamburgerMenu
+                onUploadClick={() => fileInputRef.current?.click()}
+                onPreviewClick={onPreview}
+                onRefreshClick={fetchResponses}
+                onExportClick={exportCSV}
+                onDownloadQR={handleDownloadQR}
+                qrLink={cleanLink}
+                uploading={uploading}
+                loading={loading}
+              />
             </div>
 
-            <div className="flex flex-wrap justify-center gap-4">
-              <div className="relative">
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  hidden
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  disabled={uploading}
-                />
-                <Button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="bg-rose-500 hover:bg-rose-600 text-white font-serif italic px-6 shadow-lg shadow-rose-100 border-none cursor-pointer"
+            {/* Decorative corner */}
+            <div className="absolute top-0 right-0 p-4 opacity-10">
+              <svg width="100" height="100" viewBox="0 0 100 100" fill="currentColor" className="text-rose-900">
+                <path d="M50 0C50 27.614 27.614 50 0 50C27.614 50 50 72.386 50 100C50 72.386 72.386 50 100 50C72.386 50 50 27.614 50 0Z" />
+              </svg>
+            </div>
+
+            <div className="flex flex-col md:flex-row justify-between items-center gap-6 relative z-10 w-full">
+              <div className="text-center md:text-left min-w-0">
+                <h1
+                  className="font-script text-5xl md:text-7xl tracking-normal capitalize whitespace-nowrap"
+                  style={{ color: 'var(--color-primary-600)' }}
                 >
-                  {uploading ? <RefreshCw size={16} className="animate-spin mr-2" /> : <Camera size={16} className="mr-2" />}
-                  {uploading ? 'Uploading...' : 'Upload Photo'}
+                  {(loading && !displayName) ? (
+                    <span className="animate-pulse text-stone-200">Loading...</span>
+                  ) : (
+                    displayName || prettyName
+                  )}
+                </h1>
+              </div>
+
+              <div className="hidden md:flex flex-nowrap items-center justify-end gap-3 shrink-0">
+                <div className="relative">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    hidden
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={uploading}
+                  />
+                  <Button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="text-white font-serif italic px-6 border-none cursor-pointer flex items-center justify-center transition-all hover:opacity-90 active:scale-95"
+                    style={{
+                      backgroundColor: 'var(--color-primary-500)',
+                      boxShadow: '0 8px 16px -4px var(--color-primary-100)'
+                    }}
+                  >
+                    {uploading ? <RefreshCw size={16} className="animate-spin mr-2" /> : <Camera size={16} className="mr-2" />}
+                    {uploading ? 'Uploading...' : 'Upload Photo'}
+                  </Button>
+                </div>
+
+                <Button
+                  onClick={onPreview}
+                  className="text-white font-serif italic px-6 border-none flex items-center justify-center transition-all hover:opacity-90 active:scale-95"
+                  style={{
+                    backgroundColor: 'var(--color-primary-500)',
+                    boxShadow: '0 8px 16px -4px var(--color-primary-100)'
+                  }}
+                >
+                  <Eye size={16} className="mr-2" /> Preview RSVP
+                </Button>
+                <Button
+                  onClick={fetchResponses}
+                  className="text-white px-6 border-none flex items-center justify-center transition-all hover:opacity-90 active:scale-95"
+                  style={{
+                    backgroundColor: 'var(--color-primary-500)',
+                    boxShadow: '0 8px 16px -4px var(--color-primary-100)'
+                  }}
+                >
+                  <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+                </Button>
+                <Button
+                  onClick={exportCSV}
+                  className="text-white font-serif tracking-wide px-8 border-none flex items-center justify-center transition-all hover:opacity-90 active:scale-95"
+                  style={{
+                    backgroundColor: 'var(--color-primary-500)',
+                    boxShadow: '0 8px 20px -4px var(--color-primary-200)'
+                  }}
+                >
+                  <Download size={16} className="mr-2" /> Export .CSV
                 </Button>
               </div>
-
-              <Button onClick={onPreview} className="bg-rose-500 hover:bg-rose-600 text-white font-serif italic px-6 shadow-lg shadow-rose-100 border-none">
-                <Eye size={16} className="mr-2" /> Preview RSVP
-              </Button>
-              <Button onClick={fetchResponses} className="bg-rose-500 hover:bg-rose-600 text-white px-4 shadow-lg shadow-rose-100 border-none">
-                <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-              </Button>
-              <Button onClick={exportCSV} className="bg-rose-500 hover:bg-rose-600 text-white font-serif tracking-wide px-8 shadow-xl shadow-rose-200 border-none">
-                <Download size={16} className="mr-2" /> Export .CSV
-              </Button>
             </div>
           </div>
-        </div>
 
-        {/* Share & Invite Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Link & Instructions */}
-          <div className="lg:col-span-2 bg-white rounded-[4px] border border-stone-200 p-8 shadow-sm flex flex-col justify-between">
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-rose-50 rounded-lg text-rose-500">
-                  <LinkIcon size={20} />
+          {/* Share & Invite Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Link & Instructions */}
+            <div className="lg:col-span-2 bg-white rounded-[4px] border border-stone-200 p-8 shadow-sm flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2 bg-rose-50 rounded-lg text-rose-500">
+                    <LinkIcon size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-serif text-2xl text-stone-800">Share Your Link</h3>
+                    <p className="text-stone-400 text-xs uppercase tracking-widest font-bold">Your Guests' Gateway</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-serif text-2xl text-stone-800">Share Your Link</h3>
-                  <p className="text-stone-400 text-xs uppercase tracking-widest font-bold">Your Guests' Gateway</p>
+
+                <div className="flex flex-col sm:flex-row gap-3 mb-8">
+                  <div className="flex-1 bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-stone-600 text-sm font-mono truncate flex items-center">
+                    <span className="truncate">{cleanLink}</span>
+                  </div>
+                  <Button onClick={handleCopy} className="bg-stone-800 hover:bg-black text-white px-6">
+                    {copied ? 'Copied!' : <><Copy size={16} className="mr-2" /> Copy Link</>}
+                  </Button>
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 mb-8">
-                <div className="flex-1 bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-stone-600 text-sm font-mono truncate flex items-center">
-                  <span className="truncate">{cleanLink}</span>
+              <div className="bg-stone-50/50 rounded-xl p-5 border border-stone-100">
+                <div className="flex items-start gap-3">
+                  <Palette size={18} className="text-rose-400 mt-1 shrink-0" />
+                  <div className="space-y-2">
+                    <h4 className="font-bold text-stone-700 text-sm">How it Works</h4>
+                    <ul className="list-disc pl-4 space-y-1 text-xs text-stone-500 leading-relaxed opacity-90">
+                      <li>Share the link above with your guests via WhatsApp, Email, or Instagram.</li>
+                      <li>Download the QR code SVG and customize its color in Canva for your physical invitations.</li>
+                      <li>Guests will see your personalized page and fill out the RSVP form.</li>
+                      <li>Use this Dashboard to track responses and manage your guest list.</li>
+                    </ul>
+                  </div>
                 </div>
-                <Button onClick={handleCopy} className="bg-stone-800 hover:bg-black text-white px-6">
-                  {copied ? 'Copied!' : <><Copy size={16} className="mr-2" /> Copy Link</>}
+              </div>
+            </div>
+
+            {/* QR Code (Desktop) */}
+            <div className="hidden lg:flex bg-white rounded-[4px] border border-stone-200 p-8 shadow-sm flex-col items-center justify-center text-center">
+              <div className="p-3 bg-white rounded-xl shadow-lg border border-stone-50 ring-4 ring-stone-50 mb-6">
+                <div style={{ height: "auto", margin: "0 auto", maxWidth: 140, width: "100%" }}>
+                  <QRCode
+                    id="qr-code-svg-dashboard"
+                    size={256}
+                    style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                    value={cleanLink}
+                    level='H'
+                    viewBox={`0 0 256 256`}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-4 w-full">
+                <div className="flex items-center justify-center gap-2 text-stone-800">
+                  <QrIcon size={18} className="text-rose-500" />
+                  <h3 className="font-serif text-lg">Event QR Code</h3>
+                </div>
+                <Button onClick={handleDownloadQR} variant="outline" className="w-full text-xs h-9 border-stone-300">
+                  <Download size={14} className="mr-2" /> Download SVG
                 </Button>
               </div>
-            </div>
-
-            <div className="bg-stone-50/50 rounded-xl p-5 border border-stone-100">
-              <div className="flex items-start gap-3">
-                <Palette size={18} className="text-rose-400 mt-1 shrink-0" />
-                <div className="space-y-2">
-                  <h4 className="font-bold text-stone-700 text-sm">How it Works</h4>
-                  <ul className="list-disc pl-4 space-y-1 text-xs text-stone-500 leading-relaxed opacity-90">
-                    <li>Share the link above with your guests via WhatsApp, Email, or Instagram.</li>
-                    <li>Download the QR code SVG and customize its color in Canva for your physical invitations.</li>
-                    <li>Guests will see your personalized page and fill out the RSVP form.</li>
-                    <li>Use this Dashboard to track responses and manage your guest list.</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* QR Code */}
-          <div className="bg-white rounded-[4px] border border-stone-200 p-8 shadow-sm flex flex-col items-center justify-center text-center">
-            <div className="p-3 bg-white rounded-xl shadow-lg border border-stone-50 ring-4 ring-stone-50 mb-6">
-              <div style={{ height: "auto", margin: "0 auto", maxWidth: 140, width: "100%" }}>
-                <QRCode
-                  id="qr-code-svg-dashboard"
-                  size={256}
-                  style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                  value={cleanLink}
-                  level='H'
-                  viewBox={`0 0 256 256`}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-4 w-full">
-              <div className="flex items-center justify-center gap-2 text-stone-800">
-                <QrIcon size={18} className="text-rose-500" />
-                <h3 className="font-serif text-lg">Event QR Code</h3>
-              </div>
-              <Button onClick={handleDownloadQR} variant="outline" className="w-full text-xs h-9 border-stone-300">
-                <Download size={14} className="mr-2" /> Download SVG
-              </Button>
             </div>
           </div>
         </div>
