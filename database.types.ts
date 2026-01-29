@@ -18,6 +18,7 @@ export type Database = {
                     location: string | null
                     slug: string
                     theme_id: string | null
+                    cover_image_url: string | null
                 }
                 Insert: {
                     couple_name: string
@@ -27,6 +28,7 @@ export type Database = {
                     location?: string | null
                     slug: string
                     theme_id?: string | null
+                    cover_image_url?: string | null
                 }
                 Update: {
                     couple_name?: string
@@ -36,6 +38,7 @@ export type Database = {
                     location?: string | null
                     slug?: string
                     theme_id?: string | null
+                    cover_image_url?: string | null
                 }
                 Relationships: []
             }

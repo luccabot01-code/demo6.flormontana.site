@@ -11,6 +11,23 @@ interface RsvpFormProps {
 export const RsvpForm: React.FC<RsvpFormProps> = ({ slug, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [attendance, setAttendance] = useState<'yes' | 'no' | null>(null);
+  const [coverImage, setCoverImage] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    const fetchHost = async () => {
+      const supabase = getSupabase();
+      const { data: host } = await supabase
+        .from('wedding_template_couples')
+        .select('cover_image_url')
+        .eq('slug', slug)
+        .single();
+
+      if (host) {
+        setCoverImage(host.cover_image_url);
+      }
+    };
+    fetchHost();
+  }, [slug]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -57,6 +74,19 @@ export const RsvpForm: React.FC<RsvpFormProps> = ({ slug, onSuccess }) => {
     <div className="w-full max-w-lg mx-auto animate-slide-up relative perspective-1000">
       {/* "Paper" Card Effect */}
       <div className="bg-[#fffdf9] rounded-[4px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] border border-stone-200 overflow-hidden relative transition-transform duration-500">
+        {/* Cover Photo - Banner Style */}
+        {coverImage && (
+          <div className="w-full h-48 md:h-56 overflow-hidden relative border-b border-stone-100">
+            <img
+              src={coverImage}
+              alt="Couple Cover"
+              className="w-full h-full object-cover animate-fade-in"
+            />
+            {/* Elegant Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+          </div>
+        )}
+
         {/* Decorative elements */}
         <div className="absolute top-3 left-3 right-3 bottom-3 border-[1px] border-gold-400 pointer-events-none z-10 opacity-30"></div>
         <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] opacity-50 z-0 pointer-events-none"></div>
@@ -107,7 +137,7 @@ export const RsvpForm: React.FC<RsvpFormProps> = ({ slug, onSuccess }) => {
                   type="tel"
                   name="phone"
                   className="w-full bg-transparent border-b border-stone-300 focus:border-rose-500 outline-none py-2 text-lg text-stone-800 transition-colors"
-                  placeholder="(555) 555-5555"
+                  placeholder="+1 (555) 555-5555"
                 />
               </div>
             </div>
