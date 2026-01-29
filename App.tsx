@@ -182,8 +182,30 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-stone-50 text-stone-900 relative">
-      {/* Dynamic Background */}
-      <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-rose-50 via-stone-100 to-stone-200" />
+      {/* Dynamic Background - Now using theme variables */}
+      <div
+        className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] via-stone-100 to-stone-200"
+        style={{
+          backgroundImage: `radial-gradient(ellipse at top, var(--color-primary-50), #f5f5f4, #e7e5e4)`
+        }}
+      />
+
+      {/* Loading Overlay - Prevents FOUC (Flash of Unstyled Color) */}
+      {isLoadingName && coupleSlug && (
+        <div className="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center transition-opacity duration-500">
+          <div className="w-16 h-16 relative">
+            <div className="absolute inset-0 border-4 border-stone-100 rounded-full"></div>
+            <div
+              className="absolute inset-0 border-4 border-t-transparent rounded-full animate-spin"
+              style={{ borderColor: 'var(--color-primary-500) transparent transparent transparent' }}
+            ></div>
+          </div>
+          <p className="mt-6 font-serif italic text-stone-400 animate-pulse tracking-widest uppercase text-xs">
+            Honoring the moment...
+          </p>
+        </div>
+      )}
+
       <Petals />
 
       {/* Main Content Area */}
