@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="https://fonts.gstatic.com/s/i/materialicons/favorite/v19/24px.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Eternity Wedding RSVP</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Lato', 'sans-serif'],
+              serif: ['Cormorant Garamond', 'serif'],
+              script: ['Great Vibes', 'cursive'],
+            },
+            colors: {
+              rose: {
+                50: 'var(--color-primary-50)',
+                100: 'var(--color-primary-100)',
+                200: 'var(--color-primary-200)',
+                300: 'var(--color-primary-300)',
+                400: 'var(--color-primary-400)',
+                500: 'var(--color-primary-500)',
+                600: 'var(--color-primary-600)',
+                700: 'var(--color-primary-700)',
+                800: 'var(--color-primary-800)',
+                900: 'var(--color-primary-900)',
+              },
+              gold: {
+                100: '#fbf5e6',
+                200: '#f2e6c4',
+                300: '#e6d096',
+                400: '#d9bb68',
+                500: '#c5a043',
+                600: '#b08d33',
+              }
+            },
+            animation: {
+              'float': 'float 6s ease-in-out infinite',
+              'fade-in': 'fadeIn 1s ease-out forwards',
+              'slide-up': 'slideUp 0.8s ease-out forwards',
+              'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            },
+            keyframes: {
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-20px)' },
+              },
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              },
+              slideUp: {
+                '0%': { opacity: '0', transform: 'translateY(20px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              }
+            }
+          }
+        }
+      }
+    </script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Great+Vibes&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <!-- Supabase & QRCode -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script type="importmap">
+{
+  "imports": {
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@^2.93.2"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-stone-50 text-stone-800 antialiased overflow-x-hidden selection:bg-rose-200 selection:text-rose-900">
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

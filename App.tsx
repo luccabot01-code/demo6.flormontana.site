@@ -1,0 +1,263 @@
+import React, { useState, useEffect } from 'react';
+import { Setup } from './components/Setup';
+import { LinkShare } from './components/LinkShare';
+import { RsvpForm } from './components/RsvpForm';
+import { Dashboard } from './components/Dashboard';
+import { ViewState } from './types';
+import Petals from './components/Petals';
+import { CheckCircle2, EyeOff } from 'lucide-react';
+import { Button } from './components/ui/Button';
+import { getSupabase } from './services/supabase';
+import { applyTheme } from './utils/themes';
+
+const App: React.FC = () => {
+  const [view, setView] = useState<ViewState>('setup');
+  const [coupleSlug, setCoupleSlug] = useState<string>('');
+  const [coupleName, setCoupleName] = useState<string>(''); // For display purposes
+  const [isPreview, setIsPreview] = useState(false);
+
+  // Routing Logic
+  useEffect(() => {
+    const path = window.location.pathname;
+    const params = new URLSearchParams(window.location.search);
+
+    // 1. Path-based Routing
+    // Supported patterns:
+    // - /dashboard/:slug
+    // - /:slug/rsvp
+    // - /:slug (Main Landing)
+
+    // Check for dashboard
+    if (path.startsWith('/dashboard/')) {
+      const slug = path.split('/dashboard/')[1];
+      if (slug) {
+        setCoupleSlug(decodeURIComponent(slug));
+        setView('dashboard');
+        return;
+      }
+    }
+
+    // Check for RSVP specific path (e.g., /mary&john/rsvp)
+    if (path.endsWith('/rsvp')) {
+      const parts = path.split('/');
+      // Expected format: ["", "mary&john", "rsvp"]
+      if (parts.length >= 3) {
+        const slug = parts[parts.length - 2]; // second to last
+        if (slug) {
+          setCoupleSlug(decodeURIComponent(slug));
+          setView('form');
+          return;
+        }
+      }
+    }
+
+    // Check for Main Landing (/:slug)
+    // We assume any other path with depth 1 is a slug, if it's not a known reserved route
+    const pathParts = path.split('/').filter(Boolean);
+    if (pathParts.length === 1) {
+      const potentialSlug = pathParts[0];
+      // Exclude reserved words if any (e.g. 'assets', 'favicon')
+      if (potentialSlug !== 'assets' && potentialSlug !== 'favicon.ico') {
+        setCoupleSlug(decodeURIComponent(potentialSlug));
+        setView('form'); // Default to guest form/landing
+        return;
+      }
+    }
+
+    // 2. Query Parameter Fallback
+    const rsvpParam = params.get('rsvp');
+    const dashboardParam = params.get('dashboard');
+    const setupParam = params.get('setup');
+    const nameParam = params.get('name');
+
+    if (nameParam) setCoupleName(decodeURIComponent(nameParam));
+
+    if (dashboardParam) {
+      setCoupleSlug(dashboardParam);
+      setView('dashboard');
+    } else if (rsvpParam) {
+      setCoupleSlug(rsvpParam);
+      setView('form');
+    } else if (setupParam) {
+      setCoupleSlug(setupParam);
+      setView('link');
+    } else {
+      setView('setup');
+    }
+  }, []);
+
+  // History Helper
+  const updateHistory = (url: string) => {
+    try {
+      window.history.pushState({}, '', url);
+    } catch (e) {
+      // Ignore sandbox history errors
+    }
+  };
+
+  const handleSetupSuccess = (slug: string, name: string) => {
+    setCoupleSlug(slug);
+    setCoupleName(name);
+    // Use query params for immediate feedback in sandbox, 
+    // but LinkShare will show the clean URLs
+    const newUrl = `/?setup=${slug}&name=${encodeURIComponent(name)}`;
+    updateHistory(newUrl);
+    setView('link');
+  };
+
+  const handleDashboardNav = () => {
+    const newUrl = `/dashboard/${coupleSlug}`;
+    updateHistory(newUrl);
+    setView('dashboard');
+  };
+
+  const handleNewEvent = () => {
+    updateHistory('/');
+    setCoupleSlug('');
+    setCoupleName('');
+    setView('setup');
+  };
+
+  const handleRsvpSuccess = () => {
+    setView('success');
+  };
+
+  const handlePreview = () => {
+    setIsPreview(true);
+    setView('form');
+  };
+
+  const handleClosePreview = () => {
+    setIsPreview(false);
+    setView('link');
+  };
+
+  // Helper to format name from slug if real name isn't set yet
+  const getDisplayName = () => {
+    if (coupleName) return coupleName;
+    if (!coupleSlug) return 'Our Wedding';
+    return coupleSlug
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
+  // Fetch Theme
+  useEffect(() => {
+    const fetchTheme = async () => {
+      if (!coupleSlug) return;
+      const supabase = getSupabase();
+      try {
+        const { data, error } = await supabase
+          .from('wedding_template_couples')
+          .select('theme_id')
+          .eq('slug', coupleSlug)
+          .single();
+
+        if (data && data.theme_id) {
+          applyTheme(data.theme_id);
+        } else {
+          // Default or fallback
+          applyTheme('rose');
+        }
+      } catch (e) {
+        console.error("Error fetching theme:", e);
+      }
+    };
+    fetchTheme();
+  }, [coupleSlug]);
+
+  return (
+    <div className="min-h-screen bg-stone-50 text-stone-900 relative">
+      {/* Dynamic Background */}
+      <div className="fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-rose-50 via-stone-100 to-stone-200" />
+      <Petals />
+
+      {/* Main Content Area */}
+      <main className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
+
+        {/* Header - Only show for Guest Views */}
+        {(view === 'form' || view === 'success') && (
+          <header className="mb-12 text-center animate-fade-in select-none pt-12">
+            <h1 className="font-script text-6xl md:text-8xl mb-6 drop-shadow-sm text-rose-600 pb-2 leading-relaxed">
+              {getDisplayName()}
+            </h1>
+            <p className="font-serif italic text-stone-500 tracking-[0.2em] uppercase text-sm md:text-base">
+              Join us on our special day
+            </p>
+          </header>
+        )}
+
+        <div className="w-full max-w-6xl">
+          {view === 'setup' && <Setup onSuccess={handleSetupSuccess} />}
+
+          {view === 'link' && (
+            <LinkShare
+              slug={coupleSlug}
+              coupleName={getDisplayName()}
+              onNewForm={handleNewEvent}
+              onDashboard={handleDashboardNav}
+              onPreview={handlePreview}
+            />
+          )}
+
+          {view === 'form' && (
+            <>
+              {isPreview && (
+                <div className="fixed top-4 right-4 z-50 animate-fade-in">
+                  <Button
+                    variant="secondary"
+                    onClick={handleClosePreview}
+                    className="shadow-2xl border-2 border-white/50 backdrop-blur-md bg-stone-900/90 text-sm py-2 px-4"
+                  >
+                    <EyeOff size={16} strokeWidth={2} /> Close Preview
+                  </Button>
+                </div>
+              )}
+              <RsvpForm
+                slug={coupleSlug}
+                onSuccess={handleRsvpSuccess}
+              />
+            </>
+          )}
+
+          {view === 'success' && (
+            <div className="text-center animate-slide-up bg-white/90 backdrop-blur-xl p-12 rounded-[2rem] shadow-2xl border border-white/60 max-w-md mx-auto relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-green-300 via-green-500 to-green-300"></div>
+              <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
+                <CheckCircle2 className="w-12 h-12 text-green-500" strokeWidth={1.5} />
+              </div>
+              <h2 className="font-serif text-3xl mb-4 text-stone-800">RSVP Received</h2>
+              <p className="text-stone-600 mb-10 font-sans leading-relaxed text-lg font-light">
+                Thank you for your response. Your details have been saved.
+              </p>
+
+              {isPreview ? (
+                <Button variant="outline" onClick={handleClosePreview}>
+                  <EyeOff size={16} /> Back to Preview
+                </Button>
+              ) : (
+                <p className="font-script text-4xl text-rose-500">See you there!</p>
+              )}
+            </div>
+          )}
+
+          {view === 'dashboard' && (
+            <Dashboard slug={coupleSlug} onBack={() => {
+              const newUrl = `/?setup=${coupleSlug}`;
+              updateHistory(newUrl);
+              setView('link');
+            }} />
+          )}
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="relative z-10 py-6 text-center text-stone-400 text-xs font-bold tracking-widest uppercase opacity-60 hover:opacity-100 transition-opacity">
+        <p></p>
+      </footer>
+    </div>
+  );
+};
+
+export default App;
