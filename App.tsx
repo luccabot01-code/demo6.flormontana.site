@@ -243,12 +243,22 @@ const App: React.FC = () => {
               {isLoadingName ? (
                 <span className="opacity-0">Loading</span>
               ) : (
-                getDisplayName().split('&').map((part, i, arr) => (
-                  <React.Fragment key={i}>
-                    {part}
-                    {i < arr.length - 1 && <span className="font-serif italic font-light px-2">&</span>}
-                  </React.Fragment>
-                ))
+                getDisplayName().includes('&') ? (
+                  <div className="flex flex-col md:flex-row items-center gap-1 md:gap-4">
+                    {getDisplayName().split('&').map((part, i, arr) => (
+                      <React.Fragment key={i}>
+                        <span className="whitespace-nowrap">{part.trim()}</span>
+                        {i < arr.length - 1 && (
+                          <span className="font-serif italic font-light text-3xl md:text-6xl text-[var(--color-primary-500)] my-2 md:my-0">
+                            &
+                          </span>
+                        )}
+                      </React.Fragment>
+                    ))}
+                  </div>
+                ) : (
+                  getDisplayName()
+                )
               )}
             </h1>
             <p className="font-serif italic text-stone-500 tracking-[0.2em] uppercase text-sm md:text-base">
