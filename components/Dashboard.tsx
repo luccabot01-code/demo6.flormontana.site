@@ -205,6 +205,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
 
 
             <Button
+              className="text-white font-serif italic px-5 h-10 border-none flex items-center justify-center transition-all hover:opacity-90 active:scale-95 text-sm opacity-50 cursor-not-allowed"
+              style={{
+                backgroundColor: 'var(--color-primary-500)',
+                boxShadow: 'none'
+              }}
+            >
+              <Camera size={14} className="mr-2" /> Upload Photo
+            </Button>
+
+            <Button
               onClick={onPreview}
               className="text-white font-serif italic px-5 h-10 border-none flex items-center justify-center transition-all hover:opacity-90 active:scale-95 text-sm"
               style={{
