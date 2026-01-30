@@ -59,7 +59,7 @@ export const RsvpForm: React.FC<RsvpFormProps> = ({ slug, coverImage, onSuccess 
       >
         {/* Go Back Button (Top Left) */}
         <a
-          href="https://flormontana.my.canva.site/save-the-date/"
+          href="https://flormontana.my.canva.site/save-the-date/page-2"
           className="absolute top-4 left-4 z-30 inline-flex items-center gap-2 text-white/90 hover:text-white bg-black/20 hover:bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-serif transition-all duration-300"
         >
           <ArrowLeft size={14} /> <span>GO back</span>
