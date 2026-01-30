@@ -186,9 +186,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
 
           {/* Back to Canva Button (Left) */}
           <a
-            href="https://flormontana.my.canva.site/save-the-date/page-2"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="https://flormontana.my.canva.site/save-the-date/"
             className="hidden md:flex absolute top-6 left-6 z-20"
           >
             <Button
