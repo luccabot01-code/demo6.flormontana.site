@@ -84,7 +84,12 @@ const App: React.FC = () => {
       setCoupleSlug(setupParam);
       setView('link');
     } else {
-      setView('setup');
+      // DEMO: Specific landing page for Mary & John
+      const demoSlug = 'mary&john';
+      setCoupleSlug(demoSlug);
+      setCoupleName('Mary & John');
+      setView('form');
+      updateHistory(`/${demoSlug}`);
     }
   }, []);
 
