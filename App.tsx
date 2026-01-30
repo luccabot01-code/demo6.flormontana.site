@@ -238,7 +238,7 @@ const App: React.FC = () => {
         {/* Header - Only show for Guest Views */}
         {(view === 'form' || view === 'success') && (
           <header className="mb-2 text-center animate-fade-in select-none pt-12">
-            <h1 className="font-script text-6xl md:text-8xl mb-6 drop-shadow-sm text-rose-600 pb-2 leading-relaxed">
+            <h1 className="font-serif font-light italic text-6xl md:text-8xl mb-6 drop-shadow-sm text-rose-600 pb-2 leading-relaxed">
               {isLoadingName ? (
                 <span className="opacity-0">Loading</span>
               ) : (
