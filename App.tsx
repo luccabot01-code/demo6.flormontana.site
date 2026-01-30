@@ -242,7 +242,14 @@ const App: React.FC = () => {
               {isLoadingName ? (
                 <span className="opacity-0">Loading</span>
               ) : (
-                getDisplayName()
+                getDisplayName().split('&').map((part, index, arr) => (
+                  <React.Fragment key={index}>
+                    {part}
+                    {index < arr.length - 1 && (
+                      <span className="font-serif italic mx-2 text-[0.8em]" style={{ fontWeight: 300 }}>&</span>
+                    )}
+                  </React.Fragment>
+                ))
               )}
             </h1>
             <p className="font-serif italic text-stone-500 tracking-[0.2em] uppercase text-sm md:text-base">

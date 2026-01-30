@@ -254,7 +254,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
                   {(loading && !displayName) ? (
                     <span className="animate-pulse text-stone-200">Loading...</span>
                   ) : (
-                    displayName || prettyName
+                    (displayName || prettyName).split('&').map((part, index, arr) => (
+                      <React.Fragment key={index}>
+                        {part}
+                        {index < arr.length - 1 && (
+                          <span className="font-serif italic mx-1" style={{ fontSize: '0.9em', fontWeight: 300 }}>&</span>
+                        )}
+                      </React.Fragment>
+                    ))
                   )}
                 </h1>
               </div>
