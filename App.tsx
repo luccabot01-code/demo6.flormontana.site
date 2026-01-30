@@ -15,7 +15,7 @@ const App: React.FC = () => {
   const [coupleSlug, setCoupleSlug] = useState<string>('');
   const [coupleName, setCoupleName] = useState<string>(''); // For display purposes
   const [isLoadingName, setIsLoadingName] = useState(true);
-  const [coverImage, setCoverImage] = useState<string | null>(null);
+  const [coverImage, setCoverImage] = useState<string | null>('/freepik__talk__37233.png');
   const [isPreview, setIsPreview] = useState(false);
 
   // Routing Logic
@@ -161,7 +161,8 @@ const App: React.FC = () => {
         if (data) {
           if (data.theme_id) applyTheme(data.theme_id);
           if (data.couple_name) setCoupleName(data.couple_name);
-          if (data.cover_image_url) setCoverImage(data.cover_image_url);
+          // DEMO: Keep hardcoded image
+          // if (data.cover_image_url) setCoverImage(data.cover_image_url);
         } else {
           // Default or fallback
           applyTheme('rose');
