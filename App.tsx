@@ -190,6 +190,16 @@ const App: React.FC = () => {
         }}
       />
 
+      {/* Texture Layer */}
+      <div
+        className="fixed inset-0 z-0 opacity-100 pointer-events-none"
+        style={{
+          backgroundImage: `url(/bg-texture.png)`,
+          backgroundRepeat: 'repeat',
+          backgroundSize: '300px'
+        }}
+      />
+
       {/* Loading Overlay - Prevents FOUC (Flash of Unstyled Color) */}
       {isLoadingName && coupleSlug && (
         <div className="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center transition-opacity duration-500">
@@ -213,7 +223,7 @@ const App: React.FC = () => {
 
         {/* Header - Only show for Guest Views */}
         {(view === 'form' || view === 'success') && (
-          <header className="mb-12 text-center animate-fade-in select-none pt-12">
+          <header className="mb-2 text-center animate-fade-in select-none pt-12">
             <h1 className="font-script text-6xl md:text-8xl mb-6 drop-shadow-sm text-rose-600 pb-2 leading-relaxed">
               {isLoadingName ? (
                 <span className="opacity-0">Loading</span>

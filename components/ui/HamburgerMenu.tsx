@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Camera, Eye, RefreshCw, Download, X, QrCode as QrIcon } from 'lucide-react';
+import { Camera, Eye, RefreshCw, Download, X, QrCode as QrIcon, Palette } from 'lucide-react';
 import QRCode from 'react-qr-code';
 
 interface HamburgerMenuProps {
@@ -8,6 +8,7 @@ interface HamburgerMenuProps {
     onRefreshClick: () => void;
     onExportClick: () => void;
     onDownloadQR: () => void;
+    onThemeClick: () => void;
     qrLink: string;
     uploading: boolean;
     loading: boolean;
@@ -19,6 +20,7 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
     onRefreshClick,
     onExportClick,
     onDownloadQR,
+    onThemeClick,
     qrLink,
     uploading,
     loading
@@ -105,6 +107,8 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
                         <Eye size={18} />
                         Preview RSVP
                     </button>
+
+
 
                     <button
                         onClick={() => handleAction(onRefreshClick)}

@@ -6,6 +6,7 @@ import { RefreshCw, Download, Trash2, Users, CheckCircle2, XCircle, Mail, Messag
 import QRCode from 'react-qr-code';
 import { Modal } from './ui/Modal';
 import { HamburgerMenu } from './ui/HamburgerMenu';
+import { applyTheme, themes } from '../utils/themes';
 
 interface DashboardProps {
   slug: string;
@@ -15,10 +16,26 @@ interface DashboardProps {
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPreview, onCoverUpdate }) => {
-  const [responses, setResponses] = useState<RsvpResponse[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState<DashboardStats>({ total: 0, accepted: 0, declined: 0, totalGuests: 0 });
+  // DEMO DATA: Hardcoded responses
+  const demoResponses: RsvpResponse[] = [
+    { id: '1', host_id: 'demo', guest_name: 'Sarah & Mike Thompson', guest_email: 'sarah.thompson88@gmail.com', guest_phone: '+1 (555) 123-4567', attendance: 'yes', guests_count: 2, message: "So excited to celebrate with you both! Can't wait!", created_at: new Date().toISOString() },
+    { id: '2', host_id: 'demo', guest_name: 'Aunt Linda', guest_email: 'linda.johnson1960@aol.com', guest_phone: '+1 (555) 876-5432', attendance: 'yes', guests_count: 1, message: "So happy for my favorite nephew! Love you both.", created_at: new Date().toISOString() },
+    { id: '3', host_id: 'demo', guest_name: 'The Miller Family', guest_email: 'sam.miller@comcast.net', guest_phone: '', attendance: 'yes', guests_count: 4, message: "The whole gang is coming! Kids are excited.", created_at: new Date().toISOString() },
+    { id: '4', host_id: 'demo', guest_name: 'Dr. Alan Grant', guest_email: 'agrant@university.edu', guest_phone: '', attendance: 'no', guests_count: 0, message: "Regretfully decline due to prior commitments.", created_at: new Date().toISOString() },
+    { id: '5', host_id: 'demo', guest_name: 'Jessica Chen', guest_email: 'jess.chen@designstudio.com', guest_phone: '+1 (555) 987-6543', attendance: 'yes', guests_count: 1, message: "Wouldn't miss it for the world. See you there!", created_at: new Date().toISOString() },
+    { id: '6', host_id: 'demo', guest_name: 'Marcus & Tom', guest_email: 'marcus.t@gmail.com', guest_phone: '+1 (555) 654-3210', attendance: 'yes', guests_count: 2, message: "Count us in! Can't wait to see the venue.", created_at: new Date().toISOString() }
+  ];
+
+  const [responses, setResponses] = useState<RsvpResponse[]>(demoResponses);
+  const [loading, setLoading] = useState(false);
+  const [stats, setStats] = useState<DashboardStats>({
+    total: 6,
+    accepted: 5,
+    declined: 1,
+    totalGuests: 10
+  });
   const [copied, setCopied] = useState(false);
+  const [showThemePicker, setShowThemePicker] = useState(false);
   const [modalConfig, setModalConfig] = useState<{
     isOpen: boolean;
     type: 'success' | 'error';
@@ -39,67 +56,37 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
 
   const [displayName, setDisplayName] = useState('');
 
+  // Texture for inner cards (simulating 50% opacity with overlay)
+  const subtleTexture = {
+    backgroundImage: 'linear-gradient(rgba(255, 253, 249, 0.5), rgba(255, 253, 249, 0.5)), url(/bg-texture.png)',
+    backgroundRepeat: 'repeat',
+    backgroundSize: '300px',
+    backgroundColor: '#fffdf9'
+  };
+
   // Link Construction
-  const cleanLink = `${window.location.protocol}//${window.location.host}/${slug}`;
+  // Link Construction - HARDCODED FOR DEMO
+  const cleanLink = `https://demo6.flormontana.site/mary&john`;
+
+  const handleThemeUpdate = async (themeId: string) => {
+    // 1. Instant local update
+    applyTheme(themeId);
+    setShowThemePicker(false);
+
+    // 2. Persist to DB (DISABLED FOR DEMO)
+    // const supabase = getSupabase();
+    // ...
+  };
 
   const fetchResponses = async () => {
-    setLoading(true);
-    try {
-      const supabase = getSupabase();
-      // Fetch id AND couple_name
-      const { data: host } = await supabase
-        .from('wedding_template_couples')
-        .select('id, couple_name')
-        .eq('slug', slug)
-        .single();
-
-      if (host) {
-        if (host.couple_name) setDisplayName(host.couple_name);
-
-        const { data, error } = await supabase
-          .from('wedding_template_rsvps')
-          .select('*')
-          .eq('couple_id', host.id)
-          .order('created_at', { ascending: false });
-
-        if (data && !error) {
-          const mappedData = data.map((r: any) => ({
-            id: r.id,
-            host_id: r.couple_id,
-            guest_name: r.guest_name,
-            guest_email: r.guest_email || '',
-            guest_phone: r.guest_phone,
-            attendance: r.attending ? 'yes' : 'no',
-            guests_count: r.party_size || 0,
-            message: r.message,
-            created_at: r.created_at
-          })) as RsvpResponse[];
-
-          setResponses(mappedData);
-
-          const newStats = {
-            total: mappedData.length,
-            accepted: mappedData.filter(r => r.attendance === 'yes').length,
-            declined: mappedData.filter(r => r.attendance === 'no').length,
-            totalGuests: mappedData
-              .filter(r => r.attendance === 'yes')
-              .reduce((sum, r) => sum + (r.guests_count || 0), 0)
-          };
-          setStats(newStats);
-        }
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
+    // DISABLED FOR DEMO - Using static data
+    setLoading(false);
+    if (displayName === '') setDisplayName('Mary & John'); // Hardcode name if missing
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this record?')) return;
-    const supabase = getSupabase();
-    await supabase.from('wedding_template_rsvps').delete().eq('id', id);
-    fetchResponses();
+    // DISABLED FOR DEMO
+    alert("This is a demo. Records cannot be deleted.");
   };
 
   const exportCSV = () => {
@@ -153,83 +140,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
-
+  /* Upload Logic Removed for Demo */
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      setUploading(true);
-      if (!event.target.files || event.target.files.length === 0) {
-        throw new Error('You must select an image to upload.');
-      }
-
-      const file = event.target.files[0];
-
-      // 10MB Check
-      if (file.size > 10 * 1024 * 1024) {
-        throw new Error('Image size must be less than 10MB.');
-      }
-
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
-
-      const supabase = getSupabase();
-
-      // 1. Upload to Storage
-      const { error: uploadError } = await supabase.storage
-        .from('couple_covers')
-        .upload(filePath, file);
-
-      if (uploadError) {
-        // If bucket doesn't exist, this fails. We assume bucket exists via SQL migration.
-        throw uploadError;
-      }
-
-      // 2. Get Public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('couple_covers')
-        .getPublicUrl(filePath);
-
-      // 3. Update Couple Record
-      // We need couple ID. fetchResponses already fetches it but doesn't store it in a way we can easily access globally without another fetch or state.
-      // Let's refactor slightly to store coupleId or just fetch again.
-      // Easiest is to fetch ID again to be safe.
-      const { data: host } = await supabase
-        .from('wedding_template_couples')
-        .select('id')
-        .eq('slug', slug)
-        .single();
-
-      if (host) {
-        await supabase
-          .from('wedding_template_couples')
-          .update({ cover_image_url: publicUrl })
-          .eq('id', host.id);
-
-        onCoverUpdate(publicUrl);
-
-        setModalConfig({
-          isOpen: true,
-          type: 'success',
-          title: 'Cover Updated',
-          message: 'Your beautiful cover photo has been successfully uploaded and applied.'
-        });
-      }
-
-    } catch (error: any) {
-      console.error('Error uploading image: ', error);
-      setModalConfig({
-        isOpen: true,
-        type: 'error',
-        title: 'Upload Failed',
-        message: error.message || 'Error uploading image. Please check your connection and try again.'
-      });
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
+    // Disabled
   };
+
+
+
 
   return (
     <>
@@ -242,7 +159,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
       />
       <div className="w-full max-w-6xl mx-auto space-y-10 animate-fade-in pb-16 px-4 md:px-0">
         {/* Header Section */}
-        <div className="relative bg-[#fffdf9] rounded-[4px] border border-stone-200 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden">
+        <div className="relative rounded-[4px] border border-stone-200 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden" style={subtleTexture}>
           {coverImage && (
             <div className="w-full h-48 md:h-64 relative overflow-hidden">
               <img
@@ -256,39 +173,20 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
 
           {/* Mobile Hamburger Menu - Absolute positioned relative to Header */}
           <HamburgerMenu
-            onUploadClick={() => fileInputRef.current?.click()}
+            onUploadClick={() => alert('Demo Mode: Upload disabled')}
             onPreviewClick={onPreview}
             onRefreshClick={fetchResponses}
             onExportClick={exportCSV}
             onDownloadQR={handleDownloadQR}
+            onThemeClick={() => setShowThemePicker(true)}
             qrLink={cleanLink}
-            uploading={uploading}
+            uploading={false}
             loading={loading}
           />
 
           {/* Floating Desktop Actions Panel */}
           <div className="hidden md:flex absolute top-6 right-6 z-20 items-center gap-2 p-2 bg-white/60 backdrop-blur-md rounded-2xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.06)] hover:bg-white/80 transition-all duration-300">
-            <div className="relative">
-              <input
-                type="file"
-                ref={fileInputRef}
-                hidden
-                accept="image/*"
-                onChange={handleImageUpload}
-                disabled={uploading}
-              />
-              <Button
-                onClick={() => fileInputRef.current?.click()}
-                className="text-white font-serif italic px-5 h-10 border-none cursor-pointer flex items-center justify-center transition-all hover:opacity-90 active:scale-95 text-sm"
-                style={{
-                  backgroundColor: 'var(--color-primary-500)',
-                  boxShadow: '0 4px 12px -2px var(--color-primary-100)'
-                }}
-              >
-                {uploading ? <RefreshCw size={14} className="animate-spin mr-2" /> : <Camera size={14} className="mr-2" />}
-                {uploading ? '...' : 'Upload'}
-              </Button>
-            </div>
+
 
             <Button
               onClick={onPreview}
@@ -356,7 +254,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
           {/* Share & Invite Section */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Link & Instructions */}
-            <div className="lg:col-span-2 bg-white rounded-[4px] border border-stone-200 p-8 shadow-sm flex flex-col justify-between">
+            <div className="lg:col-span-2 rounded-[4px] border border-stone-200 p-8 shadow-sm flex flex-col justify-between" style={subtleTexture}>
               <div>
                 <div className="flex items-center gap-3 mb-6">
                   <div className="p-2 bg-rose-50 rounded-lg text-rose-500">
@@ -364,13 +262,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
                   </div>
                   <div>
                     <h3 className="font-serif text-2xl text-stone-800">Share Your Link</h3>
-                    <p className="text-stone-400 text-xs uppercase tracking-widest font-bold">Your Guests' Gateway</p>
+                    <p className="text-stone-600 text-xs uppercase tracking-widest font-bold">Your Guests' Gateway</p>
                   </div>
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3 mb-8">
                   <div className="flex-1 bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-stone-600 text-sm font-mono truncate flex items-center">
-                    <span className="truncate">{cleanLink}</span>
+                    <span className="truncate">{`flormontana@etsy/${slug.replace(/\b\w/g, c => c.toUpperCase())}`}</span>
                   </div>
                   <Button onClick={handleCopy} className="bg-stone-800 hover:bg-black text-white px-6">
                     {copied ? 'Copied!' : <><Copy size={16} className="mr-2" /> Copy Link</>}
@@ -395,7 +293,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
             </div>
 
             {/* QR Code (Desktop) */}
-            <div className="hidden lg:flex bg-white rounded-[4px] border border-stone-200 p-8 shadow-sm flex-col items-center justify-center text-center">
+            <div className="hidden lg:flex rounded-[4px] border border-stone-200 p-8 shadow-sm flex-col items-center justify-center text-center" style={subtleTexture}>
               <div className="p-3 bg-white rounded-xl shadow-lg border border-stone-50 ring-4 ring-stone-50 mb-6">
                 <div style={{ height: "auto", margin: "0 auto", maxWidth: 140, width: "100%" }}>
                   <QRCode
@@ -449,7 +347,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
         </div>
 
         {/* Guest List */}
-        <div className="bg-white rounded-[4px] border border-stone-200 shadow-sm relative">
+        <div className="rounded-[4px] border border-stone-200 shadow-sm relative" style={subtleTexture}>
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-rose-200 to-transparent opacity-50"></div>
 
           <div className="p-8 md:p-10 border-b border-stone-100 flex flex-col md:flex-row justify-between items-center gap-4">
@@ -459,21 +357,21 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
               </div>
               <div>
                 <h2 className="font-serif text-3xl text-stone-800">Guest List</h2>
-                <p className="font-sans text-xs font-bold text-stone-400 tracking-widest uppercase mt-1">Managed Responses</p>
+                <p className="font-sans text-xs font-bold text-stone-600 tracking-widest uppercase mt-1">Managed Responses</p>
               </div>
             </div>
-            <span className="font-serif italic text-stone-400 text-lg border-b border-stone-200 pb-1 px-2">{responses.length} entries</span>
+            <span className="font-serif italic text-stone-600 text-lg border-b border-stone-200 pb-1 px-2">{responses.length} entries</span>
           </div>
 
           {loading ? (
             <div className="p-32 text-center flex flex-col items-center gap-4">
               <div className="w-10 h-10 border-[3px] border-stone-100 border-t-rose-400 rounded-full animate-spin"></div>
-              <p className="font-serif italic text-stone-400">Retrieving your guest list...</p>
+              <p className="font-serif italic text-stone-600">Retrieving your guest list...</p>
             </div>
           ) : responses.length === 0 ? (
             <div className="p-32 text-center bg-stone-50/30">
-              <p className="font-serif text-2xl text-stone-300 italic mb-2">No responses yet</p>
-              <p className="font-sans text-xs text-stone-400 tracking-widest uppercase">Share your link to get started</p>
+              <p className="font-serif text-2xl text-stone-500 italic mb-2">No responses yet</p>
+              <p className="font-sans text-xs text-stone-600 tracking-widest uppercase">Share your link to get started</p>
             </div>
           ) : (
             <div className="divide-y divide-stone-100">
@@ -493,7 +391,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
                       <div className="space-y-2">
                         <div>
                           <h3 className="font-serif text-2xl text-stone-800 leading-none mb-1">{rsvp.guest_name}</h3>
-                          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs font-bold text-stone-400 tracking-wider uppercase font-sans">
+                          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs font-bold text-stone-500 tracking-wider uppercase font-sans">
                             <span className="flex items-center gap-1 hover:text-rose-500 transition-colors cursor-default">
                               <Mail size={10} /> {rsvp.guest_email || 'No email'}
                             </span>
@@ -525,8 +423,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
                               <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
                               <span className="text-[10px] font-bold tracking-widest uppercase">Attending</span>
                             </div>
-                            <p className="text-stone-400 font-serif italic text-lg">
-                              Party of <strong className="text-stone-700 font-sans not-italic text-sm">{rsvp.guests_count}</strong>
+                            <p className="text-stone-600 font-serif italic text-lg">
+                              Party of <strong className="text-stone-800 font-sans not-italic text-sm">{rsvp.guests_count}</strong>
                             </p>
                           </>
                         ) : (
@@ -572,7 +470,15 @@ const StatCard: React.FC<StatCardProps> = ({
   accent = 'text-stone-800',
   bg = 'bg-white'
 }) => (
-  <div className={`p-8 rounded-[4px] border border-stone-200 flex flex-col gap-4 hover:shadow-lg transition-all duration-300 group bg-white relative overflow-hidden`}>
+  <div
+    className={`p-8 rounded-[4px] border border-stone-200 flex flex-col gap-4 hover:shadow-lg transition-all duration-300 group relative overflow-hidden`}
+    style={{
+      backgroundImage: 'linear-gradient(rgba(255, 253, 249, 0.5), rgba(255, 253, 249, 0.5)), url(/bg-texture.png)',
+      backgroundRepeat: 'repeat',
+      backgroundSize: '300px',
+      backgroundColor: '#fffdf9'
+    }}
+  >
     {/* Background accent */}
     <div className={`absolute top-0 right-0 w-24 h-24 rounded-bl-full opacity-10 transition-transform group-hover:scale-150 duration-500 ${accent.replace('text', 'bg')}`}></div>
 
@@ -582,7 +488,7 @@ const StatCard: React.FC<StatCardProps> = ({
 
     <div>
       <p className="font-serif text-5xl text-stone-800 mb-1">{value}</p>
-      <p className="font-sans text-xs font-bold text-stone-400 tracking-widest uppercase">{label}</p>
+      <p className="font-sans text-xs font-bold text-stone-600 tracking-widest uppercase">{label}</p>
     </div>
   </div>
 );

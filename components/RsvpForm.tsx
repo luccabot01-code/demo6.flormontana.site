@@ -31,19 +31,11 @@ export const RsvpForm: React.FC<RsvpFormProps> = ({ slug, coverImage, onSuccess 
       if (hostError) throw new Error('Couple not found');
 
       // Submit RSVP
-      const { error: insertError } = await supabase
-        .from('wedding_template_rsvps')
-        .insert([{
-          couple_id: host.id,
-          guest_name: formData.get('name') as string,
-          guest_email: (formData.get('email') as string) || null,
-          guest_phone: (formData.get('phone') as string) || null,
-          attending: attendance === 'yes',
-          party_size: attendance === 'yes' ? Number(formData.get('guests')) : 0,
-          message: (formData.get('message') as string) || null
-        }]);
+      // DEMO: Simulate DB Call
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Fake delay
 
-      if (insertError) throw insertError;
+      // const { error: insertError } = await supabase... (DISABLED)
+
       onSuccess();
 
     } catch (err) {
@@ -57,7 +49,14 @@ export const RsvpForm: React.FC<RsvpFormProps> = ({ slug, coverImage, onSuccess 
   return (
     <div className="w-full max-w-lg mx-auto animate-slide-up relative perspective-1000">
       {/* "Paper" Card Effect */}
-      <div className="bg-[#fffdf9] rounded-[4px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] border border-stone-200 overflow-hidden relative transition-transform duration-500">
+      <div
+        className="rounded-[4px] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] border border-stone-200 overflow-hidden relative transition-transform duration-500 bg-white"
+        style={{
+          backgroundImage: 'linear-gradient(rgba(255, 253, 249, 0.5), rgba(255, 253, 249, 0.5)), url(/bg-texture.png)',
+          backgroundRepeat: 'repeat',
+          backgroundSize: '300px'
+        }}
+      >
         {/* Cover Photo - Banner Style */}
         {coverImage && (
           <div className="w-full h-48 md:h-56 overflow-hidden relative border-b border-stone-100">
@@ -73,7 +72,6 @@ export const RsvpForm: React.FC<RsvpFormProps> = ({ slug, coverImage, onSuccess 
 
         {/* Decorative elements */}
         <div className="absolute top-3 left-3 right-3 bottom-3 border-[1px] border-gold-400 pointer-events-none z-10 opacity-30"></div>
-        <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] opacity-50 z-0 pointer-events-none"></div>
 
         {/* Content */}
         <div className="p-8 md:p-12 relative z-20">
@@ -89,45 +87,45 @@ export const RsvpForm: React.FC<RsvpFormProps> = ({ slug, coverImage, onSuccess 
 
           <form onSubmit={handleSubmit} className="space-y-8 font-serif relative">
             <div className="group">
-              <label className="flex items-center gap-2 text-stone-400 text-xs uppercase tracking-widest mb-2 font-sans font-bold">
+              <label className="flex items-center gap-2 text-stone-600 text-xs uppercase tracking-widest mb-2 font-sans font-bold">
                 <User size={12} /> Full Name
               </label>
               <input
                 name="name"
                 required
-                className="w-full bg-transparent border-b border-stone-300 focus:border-rose-500 outline-none py-3 text-2xl text-stone-800 transition-colors placeholder-stone-300 font-serif italic"
+                className="w-full bg-transparent border-b border-stone-300 focus:border-rose-500 outline-none py-3 text-2xl text-stone-800 transition-colors placeholder-stone-500 font-serif italic"
                 placeholder="Name and Surname"
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="group">
-                <label className="flex items-center gap-2 text-stone-400 text-xs uppercase tracking-widest mb-2 font-sans font-bold">
+                <label className="flex items-center gap-2 text-stone-600 text-xs uppercase tracking-widest mb-2 font-sans font-bold">
                   <Mail size={12} /> Email
                 </label>
                 <input
                   type="email"
                   name="email"
                   required
-                  className="w-full bg-transparent border-b border-stone-300 focus:border-rose-500 outline-none py-2 text-lg text-stone-800 transition-colors"
+                  className="w-full bg-transparent border-b border-stone-300 focus:border-rose-500 outline-none py-2 text-lg text-stone-800 transition-colors placeholder-stone-500"
                   placeholder="example@email.com"
                 />
               </div>
               <div className="group">
-                <label className="flex items-center gap-2 text-stone-400 text-xs uppercase tracking-widest mb-2 font-sans font-bold">
+                <label className="flex items-center gap-2 text-stone-600 text-xs uppercase tracking-widest mb-2 font-sans font-bold">
                   <Phone size={12} /> Phone
                 </label>
                 <input
                   type="tel"
                   name="phone"
-                  className="w-full bg-transparent border-b border-stone-300 focus:border-rose-500 outline-none py-2 text-lg text-stone-800 transition-colors"
+                  className="w-full bg-transparent border-b border-stone-300 focus:border-rose-500 outline-none py-2 text-lg text-stone-800 transition-colors placeholder-stone-500"
                   placeholder="+1 (555) 555-5555"
                 />
               </div>
             </div>
 
             <div className="py-4">
-              <label className="block text-stone-500 text-sm uppercase tracking-widest mb-6 text-center font-sans font-bold">Will you be attending?</label>
+              <label className="block text-stone-600 text-sm uppercase tracking-widest mb-6 text-center font-sans font-bold">Will you be attending?</label>
               <div className="grid grid-cols-2 gap-4">
                 <button
                   type="button"
@@ -154,7 +152,7 @@ export const RsvpForm: React.FC<RsvpFormProps> = ({ slug, coverImage, onSuccess 
             </div>
 
             <div className={`transition-all duration-500 overflow-hidden ${attendance === 'yes' ? 'max-h-32 opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-4'}`}>
-              <label className="flex items-center gap-2 text-stone-400 text-xs uppercase tracking-widest mb-2 font-sans font-bold">
+              <label className="flex items-center gap-2 text-stone-600 text-xs uppercase tracking-widest mb-2 font-sans font-bold">
                 <Users size={12} /> Guests (Including you)
               </label>
               <input
@@ -169,13 +167,13 @@ export const RsvpForm: React.FC<RsvpFormProps> = ({ slug, coverImage, onSuccess 
             </div>
 
             <div>
-              <label className="flex items-center gap-2 text-stone-400 text-xs uppercase tracking-widest mb-2 font-sans font-bold">
+              <label className="flex items-center gap-2 text-stone-600 text-xs uppercase tracking-widest mb-2 font-sans font-bold">
                 <MessageSquare size={12} /> Message to the Couple
               </label>
               <textarea
                 name="message"
                 rows={3}
-                className="w-full bg-stone-50/50 rounded-xl border border-stone-200 focus:border-rose-500 outline-none p-4 text-stone-700 transition-colors mt-2 resize-none font-serif text-lg leading-relaxed"
+                className="w-full bg-stone-50/50 rounded-xl border border-stone-200 focus:border-rose-500 outline-none p-4 text-stone-700 transition-colors mt-2 resize-none font-serif text-lg leading-relaxed placeholder-stone-500"
                 placeholder="Dietary restrictions or best wishes..."
               ></textarea>
             </div>
