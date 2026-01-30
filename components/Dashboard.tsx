@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getSupabase } from '../services/supabase';
 import { RsvpResponse, DashboardStats } from '../types';
 import { Button } from './ui/Button';
-import { RefreshCw, Download, Trash2, Users, CheckCircle2, XCircle, Mail, MessageSquare, Phone, Copy, Link as LinkIcon, QrCode as QrIcon, Eye, Palette, Camera } from 'lucide-react';
+import { RefreshCw, Download, Trash2, Users, CheckCircle2, XCircle, Mail, MessageSquare, Phone, Copy, Link as LinkIcon, QrCode as QrIcon, Eye, Palette, Camera, ArrowLeft } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { Modal } from './ui/Modal';
 import { HamburgerMenu } from './ui/HamburgerMenu';
@@ -183,6 +183,21 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
             uploading={false}
             loading={loading}
           />
+
+          {/* Back to Canva Button (Left) */}
+          <div className="hidden md:flex absolute top-6 left-6 z-20 items-center gap-2 p-2 bg-white/60 backdrop-blur-md rounded-2xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.06)] hover:bg-white/80 transition-all duration-300">
+            <a
+              href="https://flormontana.my.canva.site/save-the-date/page-2"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button
+                className="text-stone-600 hover:text-stone-900 font-serif italic px-5 h-10 border-none flex items-center justify-center transition-all active:scale-95 text-sm bg-transparent hover:bg-white/50"
+              >
+                <ArrowLeft size={16} className="mr-2" /> Back to Canva
+              </Button>
+            </a>
+          </div>
 
           {/* Floating Desktop Actions Panel */}
           <div className="hidden md:flex absolute top-6 right-6 z-20 items-center gap-2 p-2 bg-white/60 backdrop-blur-md rounded-2xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.06)] hover:bg-white/80 transition-all duration-300">
