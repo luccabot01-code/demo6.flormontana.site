@@ -194,8 +194,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
             <Button
               className="text-white font-serif italic px-5 h-10 border-none flex items-center justify-center transition-all hover:opacity-90 active:scale-95 text-sm"
               style={{
-                backgroundColor: 'var(--color-primary-500)',
-                boxShadow: '0 4px 12px -2px var(--color-primary-100)'
+                background: 'linear-gradient(90deg, #00C4CC 0%, #7D2AE8 100%)',
+                boxShadow: '0 4px 15px -3px rgba(125, 42, 232, 0.3)'
               }}
             >
               <ArrowLeft size={16} className="mr-2" /> Back to Canva
