@@ -248,7 +248,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
             <div className="flex flex-col md:flex-row justify-between items-center gap-6 relative z-10 w-full">
               <div className="text-center md:text-left min-w-0 max-w-full">
                 <h1
-                  className="font-serif font-light italic text-5xl md:text-7xl tracking-normal capitalize break-words leading-tight"
+                  className="font-slight text-6xl md:text-8xl tracking-wider capitalize break-words leading-[1.2]"
                   style={{ color: 'var(--color-primary-600)' }}
                 >
                   {(loading && !displayName) ? (
