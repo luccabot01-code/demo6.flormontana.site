@@ -35,7 +35,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
     totalGuests: 10
   });
   const [copied, setCopied] = useState(false);
-  const [showThemePicker, setShowThemePicker] = useState(false);
+
   const [modalConfig, setModalConfig] = useState<{
     isOpen: boolean;
     type: 'success' | 'error';
@@ -47,6 +47,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
     title: '',
     message: ''
   });
+
+  // Apply default theme on mount
+  useEffect(() => {
+    applyTheme('charcoal'); // Change 'rose' to your desired default theme ID
+  }, []);
 
   // Fallback prettification, though we try to fetch display name
   const prettyName = slug
@@ -68,15 +73,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
   // Link Construction - HARDCODED FOR DEMO
   const cleanLink = `https://demo6.flormontana.site/mary&john`;
 
-  const handleThemeUpdate = async (themeId: string) => {
-    // 1. Instant local update
-    applyTheme(themeId);
-    setShowThemePicker(false);
 
-    // 2. Persist to DB (DISABLED FOR DEMO)
-    // const supabase = getSupabase();
-    // ...
-  };
 
   const fetchResponses = async () => {
     // DISABLED FOR DEMO - Using static data
@@ -85,8 +82,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
   };
 
   const handleDelete = async (id: string) => {
-    // DISABLED FOR DEMO
-    alert("This is a demo. Records cannot be deleted.");
+    // DISABLED FOR DEMO - No action
+    return;
   };
 
   const exportCSV = () => {
@@ -157,6 +154,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
         message={modalConfig.message}
         type={modalConfig.type}
       />
+
       <div className="w-full max-w-6xl mx-auto space-y-10 animate-fade-in pb-16 px-4 md:px-0">
         {/* Header Section */}
         <div className="relative rounded-[4px] border border-stone-200 shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden" style={subtleTexture}>
@@ -178,7 +176,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
             onRefreshClick={fetchResponses}
             onExportClick={exportCSV}
             onDownloadQR={handleDownloadQR}
-            onThemeClick={() => setShowThemePicker(true)}
             qrLink={cleanLink}
             uploading={false}
             loading={loading}
@@ -240,7 +237,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
 
             {/* Mobile Decorative corner (optional, keeping it clean) */}
             <div className="absolute top-0 right-0 p-4 opacity-10 md:hidden">
-              <svg width="80" height="80" viewBox="0 0 100 100" fill="currentColor" className="text-rose-900">
+              <svg width="80" height="80" viewBox="0 0 100 100" fill="currentColor" className="text-[var(--color-primary-900)]">
                 <path d="M50 0C50 27.614 27.614 50 0 50C27.614 50 50 72.386 50 100C50 72.386 72.386 50 100 50C72.386 50 50 27.614 50 0Z" />
               </svg>
             </div>
@@ -254,12 +251,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
                   {(loading && !displayName) ? (
                     <span className="animate-pulse text-stone-200">Loading...</span>
                   ) : (
-                    (displayName || prettyName).split('&').map((part, index, arr) => (
-                      <React.Fragment key={index}>
+                    (displayName || prettyName).split('&').map((part, i, arr) => (
+                      <React.Fragment key={i}>
                         {part}
-                        {index < arr.length - 1 && (
-                          <span className="font-serif italic mx-1" style={{ fontSize: '0.9em', fontWeight: 300 }}>&</span>
-                        )}
+                        {i < arr.length - 1 && <span className="font-serif italic font-light px-2">&</span>}
                       </React.Fragment>
                     ))
                   )}
@@ -276,7 +271,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
             <div className="lg:col-span-2 rounded-[4px] border border-stone-200 p-8 shadow-sm flex flex-col justify-between" style={subtleTexture}>
               <div>
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 bg-rose-50 rounded-lg text-rose-500">
+                  <div className="p-2 bg-[var(--color-primary-50)] rounded-lg text-[var(--color-primary-500)]">
                     <LinkIcon size={20} />
                   </div>
                   <div>
@@ -297,7 +292,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
 
               <div className="bg-stone-50/50 rounded-xl p-5 border border-stone-100">
                 <div className="flex items-start gap-3">
-                  <Palette size={18} className="text-rose-400 mt-1 shrink-0" />
+                  <Palette size={18} className="text-[var(--color-primary-400)] mt-1 shrink-0" />
                   <div className="space-y-2">
                     <h4 className="font-bold text-stone-700 text-sm">How it Works</h4>
                     <ul className="list-disc pl-4 space-y-1 text-xs text-stone-500 leading-relaxed opacity-90">
@@ -328,7 +323,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
 
               <div className="space-y-4 w-full">
                 <div className="flex items-center justify-center gap-2 text-stone-800">
-                  <QrIcon size={18} className="text-rose-500" />
+                  <QrIcon size={18} className="text-[var(--color-primary-500)]" />
                   <h3 className="font-serif text-lg">Event QR Code</h3>
                 </div>
                 <Button onClick={handleDownloadQR} variant="outline" className="w-full text-xs h-9 border-stone-300">
@@ -341,37 +336,37 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard label="Total Responses" value={stats.total} icon={<Mail size={20} />} accent="text-rose-600" bg="bg-rose-50" />
+          <StatCard label="Total Responses" value={stats.total} icon={<Mail size={20} />} accent="text-[var(--color-primary-600)]" bg="bg-[var(--color-primary-50)]" />
           <StatCard
             label="Joyfully Accepted"
             value={stats.accepted}
             icon={<CheckCircle2 size={20} />}
-            accent="text-rose-600"
-            bg="bg-rose-50"
+            accent="text-[var(--color-primary-600)]"
+            bg="bg-[var(--color-primary-50)]"
           />
           <StatCard
             label="Regretfully Declined"
             value={stats.declined}
             icon={<XCircle size={20} />}
-            accent="text-rose-600"
-            bg="bg-rose-50"
+            accent="text-[var(--color-primary-600)]"
+            bg="bg-[var(--color-primary-50)]"
           />
           <StatCard
             label="Total Guests"
             value={stats.totalGuests}
             icon={<Users size={20} />}
-            accent="text-rose-600"
-            bg="bg-rose-50"
+            accent="text-[var(--color-primary-600)]"
+            bg="bg-[var(--color-primary-50)]"
           />
         </div>
 
         {/* Guest List */}
         <div className="rounded-[4px] border border-stone-200 shadow-sm relative" style={subtleTexture}>
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-rose-200 to-transparent opacity-50"></div>
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[var(--color-primary-200)] to-transparent opacity-50"></div>
 
           <div className="p-8 md:p-10 border-b border-stone-100 flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-stone-50 border border-stone-100 flex items-center justify-center text-rose-300">
+              <div className="w-12 h-12 rounded-full bg-stone-50 border border-stone-100 flex items-center justify-center text-[var(--color-primary-300)]">
                 <Users size={24} strokeWidth={1.5} />
               </div>
               <div>
@@ -384,7 +379,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
 
           {loading ? (
             <div className="p-32 text-center flex flex-col items-center gap-4">
-              <div className="w-10 h-10 border-[3px] border-stone-100 border-t-rose-400 rounded-full animate-spin"></div>
+              <div className="w-10 h-10 border-[3px] border-stone-100 border-t-[var(--color-primary-400)] rounded-full animate-spin"></div>
               <p className="font-serif italic text-stone-600">Retrieving your guest list...</p>
             </div>
           ) : responses.length === 0 ? (
@@ -395,13 +390,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
           ) : (
             <div className="divide-y divide-stone-100">
               {responses.map((rsvp) => (
-                <div key={rsvp.id} className="p-6 md:px-10 md:py-8 hover:bg-[#fffdf9] transition-all duration-300 group">
+                <div key={rsvp.id} className="p-6 md:px-10 md:py-8 transition-all duration-300 group">
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
 
                     {/* Guest Info */}
                     <div className="flex items-start gap-6">
                       <div className={`w-16 h-16 shrink-0 rounded-full flex items-center justify-center text-3xl font-serif border-2 ${rsvp.attendance === 'yes'
-                        ? 'border-rose-100 bg-rose-50 text-rose-500'
+                        ? 'border-[var(--color-primary-100)] bg-[var(--color-primary-50)] text-[var(--color-primary-500)]'
                         : 'border-stone-100 bg-stone-50 text-stone-300'
                         }`}>
                         {rsvp.guest_name.charAt(0).toUpperCase()}
@@ -411,11 +406,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
                         <div>
                           <h3 className="font-serif text-2xl text-stone-800 leading-none mb-1">{rsvp.guest_name}</h3>
                           <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs font-bold text-stone-500 tracking-wider uppercase font-sans">
-                            <span className="flex items-center gap-1 hover:text-rose-500 transition-colors cursor-default">
+                            <span className="flex items-center gap-1 hover:text-[var(--color-primary-500)] transition-colors cursor-default">
                               <Mail size={10} /> {rsvp.guest_email || 'No email'}
                             </span>
                             {rsvp.guest_phone && (
-                              <span className="flex items-center gap-1 hover:text-rose-500 transition-colors cursor-default">
+                              <span className="flex items-center gap-1 hover:text-[var(--color-primary-500)] transition-colors cursor-default">
                                 <Phone size={10} /> {rsvp.guest_phone}
                               </span>
                             )}
@@ -423,9 +418,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
                         </div>
 
                         {rsvp.message && (
-                          <div className="bg-stone-50 rounded-r-xl rounded-bl-xl border-l-2 border-rose-200 p-3 max-w-lg">
+                          <div className="bg-stone-50 rounded-r-xl rounded-bl-xl border-l-2 border-[var(--color-primary-200)] p-3 max-w-lg">
                             <div className="flex gap-2">
-                              <MessageSquare size={12} className="text-rose-300 shrink-0 mt-1" />
+                              <MessageSquare size={12} className="text-[var(--color-primary-300)] shrink-0 mt-1" />
                               <p className="font-serif italic text-stone-600 text-lg leading-relaxed">"{rsvp.message}"</p>
                             </div>
                           </div>
@@ -455,9 +450,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
                       </div>
 
                       <button
-                        onClick={() => handleDelete(rsvp.id)}
-                        className="w-10 h-10 flex items-center justify-center rounded-full text-stone-300 hover:text-red-500 hover:bg-white hover:shadow-md hover:border hover:border-red-100 transition-all"
-                        title="Delete Entry"
+                        disabled
+                        className="w-10 h-10 flex items-center justify-center rounded-full text-stone-200 cursor-not-allowed transition-all"
+                        title="Delete Entry (Disabled in Demo)"
                       >
                         <Trash2 size={18} strokeWidth={1.5} />
                       </button>

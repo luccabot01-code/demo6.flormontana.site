@@ -172,13 +172,14 @@ const App: React.FC = () => {
           .single();
 
         if (data) {
-          if (data.theme_id) applyTheme(data.theme_id);
+          // FORCE CHARCOAL for Demo Consistency (ignoring DB value which might be 'rose')
+          applyTheme('charcoal');
           if (data.couple_name) setCoupleName(data.couple_name);
           // DEMO: Keep hardcoded image
           // if (data.cover_image_url) setCoverImage(data.cover_image_url);
         } else {
           // Default or fallback
-          applyTheme('rose');
+          applyTheme('charcoal');
         }
       } catch (e) {
         console.error("Error fetching data:", e);
@@ -238,16 +239,14 @@ const App: React.FC = () => {
         {/* Header - Only show for Guest Views */}
         {(view === 'form' || view === 'success') && (
           <header className="mb-2 text-center animate-fade-in select-none pt-12">
-            <h1 className="font-slight text-7xl md:text-9xl mb-6 drop-shadow-sm text-rose-600 pb-2 leading-relaxed tracking-wider">
+            <h1 className="font-slight text-7xl md:text-9xl mb-6 drop-shadow-sm text-[var(--color-primary-600)] pb-2 leading-relaxed tracking-wider">
               {isLoadingName ? (
                 <span className="opacity-0">Loading</span>
               ) : (
-                getDisplayName().split('&').map((part, index, arr) => (
-                  <React.Fragment key={index}>
+                getDisplayName().split('&').map((part, i, arr) => (
+                  <React.Fragment key={i}>
                     {part}
-                    {index < arr.length - 1 && (
-                      <span className="font-serif italic mx-2 text-[0.8em]" style={{ fontWeight: 300 }}>&</span>
-                    )}
+                    {i < arr.length - 1 && <span className="font-serif italic font-light px-2">&</span>}
                   </React.Fragment>
                 ))
               )}
@@ -294,8 +293,8 @@ const App: React.FC = () => {
 
           {view === 'success' && (
             <div className="text-center animate-slide-up bg-white/90 backdrop-blur-xl p-12 rounded-[2rem] shadow-2xl border border-white/60 max-w-md mx-auto relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-rose-300 via-rose-500 to-rose-300"></div>
-              <div className="w-24 h-24 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
+              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--color-primary-300)] via-[var(--color-primary-500)] to-[var(--color-primary-300)]"></div>
+              <div className="w-24 h-24 bg-[var(--color-primary-50)] rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
                 <CheckCircle2 className="w-12 h-12 text-green-500" strokeWidth={1.5} />
               </div>
               <h2 className="font-serif text-3xl mb-4 text-stone-800">RSVP Received</h2>
@@ -308,7 +307,7 @@ const App: React.FC = () => {
                   <EyeOff size={16} /> Back to Preview
                 </Button>
               ) : (
-                <p className="font-script text-4xl text-rose-500">See you there!</p>
+                <p className="font-script text-4xl text-[var(--color-primary-500)]">See you there!</p>
               )}
             </div>
           )}

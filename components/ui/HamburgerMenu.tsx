@@ -8,7 +8,6 @@ interface HamburgerMenuProps {
     onRefreshClick: () => void;
     onExportClick: () => void;
     onDownloadQR: () => void;
-    onThemeClick: () => void;
     qrLink: string;
     uploading: boolean;
     loading: boolean;
@@ -20,7 +19,6 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
     onRefreshClick,
     onExportClick,
     onDownloadQR,
-    onThemeClick,
     qrLink,
     uploading,
     loading
@@ -36,7 +34,7 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
         <>
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`absolute z-50 w-12 h-12 flex flex-col items-center justify-center gap-1.5 bg-rose-500 rounded-xl shadow-lg md:hidden transition-all duration-300 ${isOpen ? 'opacity-0 scale-90 pointer-events-none' : 'opacity-100 scale-100'}`}
+                className={`absolute z-50 w-12 h-12 flex flex-col items-center justify-center gap-1.5 bg-[var(--color-primary-500)] rounded-xl shadow-lg md:hidden transition-all duration-300 ${isOpen ? 'opacity-0 scale-90 pointer-events-none' : 'opacity-100 scale-100'}`}
                 style={{ top: '16px', right: '16px' }}
                 aria-label="Menu"
             >
@@ -110,6 +108,8 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
 
 
 
+
+
                     <button
                         onClick={() => handleAction(onRefreshClick)}
                         disabled={loading}
@@ -138,7 +138,7 @@ export const HamburgerMenu: React.FC<HamburgerMenuProps> = ({
                     {/* QR Code Section */}
                     <div className="mt-8 pt-6 border-t border-stone-100">
                         <div className="flex items-center gap-2 mb-4 text-stone-800 px-2">
-                            <QrIcon size={18} className="text-rose-500" />
+                            <QrIcon size={18} className="text-[var(--color-primary-500)]" />
                             <h4 className="font-serif text-base">Event QR Code</h4>
                         </div>
 

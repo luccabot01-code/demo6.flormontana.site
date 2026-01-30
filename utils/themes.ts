@@ -114,7 +114,7 @@ export const generatePalette = (baseHex: string) => {
 };
 
 export const applyTheme = (themeId: string) => {
-    const theme = themes.find(t => t.id === themeId) || themes[0];
+    const theme = themes.find(t => t.id === themeId) || themes.find(t => t.id === 'charcoal') || themes[0];
     const palette = generatePalette(theme.color);
 
     const root = document.documentElement;

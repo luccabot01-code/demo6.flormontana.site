@@ -10,7 +10,7 @@ interface SetupProps {
 
 export const Setup: React.FC<SetupProps> = ({ onSuccess }) => {
   const [names, setNames] = useState('');
-  const [themeId, setThemeId] = useState('rose');
+  const [themeId, setThemeId] = useState('charcoal');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 

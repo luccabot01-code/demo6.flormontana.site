@@ -6,16 +6,50 @@ import { Button } from './ui/Button';
 interface ThemeSelectorProps {
     currentThemeId: string;
     onSelect: (themeId: string) => void;
+    isOpen?: boolean;
+    onClose?: () => void;
+    onOpen?: () => void;
+    buttonClassName?: string;
+    buttonStyle?: React.CSSProperties;
+    buttonChildren?: React.ReactNode;
 }
 
-export const ThemeSelector: React.FC<ThemeSelectorProps> = ({ currentThemeId, onSelect }) => {
-    const [isOpen, setIsOpen] = useState(false);
+export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
+    currentThemeId,
+    onSelect,
+    isOpen: controlledIsOpen,
+    onClose: controlledOnClose,
+    onOpen: controlledOnOpen,
+    buttonClassName,
+    buttonStyle,
+    buttonChildren
+}) => {
+    const [internalOpen, setInternalOpen] = useState(false);
     const [search, setSearch] = useState('');
+
+    const isControlled = controlledIsOpen !== undefined;
+    const isOpen = isControlled ? controlledIsOpen : internalOpen;
+
+    const handleOpen = () => {
+        if (controlledOnOpen) {
+            controlledOnOpen();
+        } else if (!isControlled) {
+            setInternalOpen(true);
+        }
+    };
+
+    const handleClose = () => {
+        if (controlledOnClose) {
+            controlledOnClose();
+        } else if (!isControlled) {
+            setInternalOpen(false);
+        }
+    };
 
     const handleSelect = (themeId: string) => {
         applyTheme(themeId);
         onSelect(themeId);
-        setIsOpen(false);
+        handleClose();
     };
 
     const filteredThemes = themes.filter(t =>
@@ -27,15 +61,20 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({ currentThemeId, on
             <Button
                 type="button"
                 variant="outline"
-                onClick={() => setIsOpen(true)}
-                className="gap-2 border-stone-300 hover:border-rose-400 hover:text-rose-600"
+                onClick={handleOpen}
+                className={buttonClassName || "gap-2 border-stone-300 hover:border-rose-400 hover:text-rose-600"}
+                style={buttonStyle}
             >
-                <Palette size={18} />
-                <span className="hidden sm:inline">Choose Theme</span>
-                <div
-                    className="w-4 h-4 rounded-full border border-stone-200 shadow-sm ml-1"
-                    style={{ backgroundColor: themes.find(t => t.id === currentThemeId)?.color }}
-                />
+                {buttonChildren ? buttonChildren : (
+                    <>
+                        <Palette size={18} />
+                        <span className="hidden sm:inline">Choose Theme</span>
+                        <div
+                            className="w-4 h-4 rounded-full border border-stone-200 shadow-sm ml-1"
+                            style={{ backgroundColor: themes.find(t => t.id === currentThemeId)?.color }}
+                        />
+                    </>
+                )}
             </Button>
 
             {isOpen && (
@@ -49,7 +88,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({ currentThemeId, on
                                 <p className="text-stone-500 text-sm">Choose a color palette for your wedding page.</p>
                             </div>
                             <button
-                                onClick={() => setIsOpen(false)}
+                                onClick={handleClose}
                                 className="p-2 hover:bg-stone-200/50 rounded-full transition-colors text-stone-500"
                             >
                                 <X size={24} />
