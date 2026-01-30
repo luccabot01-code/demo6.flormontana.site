@@ -11,85 +11,93 @@ import { getSupabase } from './services/supabase';
 import { applyTheme } from './utils/themes';
 
 const App: React.FC = () => {
-  const [view, setView] = useState<ViewState>('setup');
-  const [coupleSlug, setCoupleSlug] = useState<string>('');
-  const [coupleName, setCoupleName] = useState<string>(''); // For display purposes
+  // Synchronous State Initialization
+  const [view, setView] = (() => {
+    const path = window.location.pathname;
+    const params = new URLSearchParams(window.location.search);
+    let initialView: ViewState = 'setup';
+
+    // 1. Dashboard
+    if (path.startsWith('/dashboard/')) {
+      const slug = path.split('/dashboard/')[1];
+      if (slug) return useState<ViewState>('dashboard');
+    }
+
+    // 2. RSVP Specific
+    if (path.endsWith('/rsvp')) {
+      return useState<ViewState>('form');
+    }
+
+    // 3. Main Landing / Slug
+    const pathParts = path.split('/').filter(Boolean);
+    if (pathParts.length === 1 && pathParts[0] !== 'assets' && pathParts[0] !== 'favicon.ico') {
+      return useState<ViewState>('form');
+    }
+
+    // 4. Query Params
+    if (params.get('dashboard')) return useState<ViewState>('dashboard');
+    if (params.get('rsvp')) return useState<ViewState>('form');
+    if (params.get('setup')) return useState<ViewState>('link');
+
+    // 5. Default Root -> Redirect logic handles this, but for INIT we default to:
+    // Actually, for the DEMO, if it's root '/', we want 'form' immediately too.
+    if (path === '/' && !params.toString()) {
+      return useState<ViewState>('form');
+    }
+
+    return useState<ViewState>('setup');
+  })();
+
+  const [coupleSlug, setCoupleSlug] = (() => {
+    const path = window.location.pathname;
+    const params = new URLSearchParams(window.location.search);
+
+    if (path.startsWith('/dashboard/') && path.split('/dashboard/')[1]) {
+      return useState(decodeURIComponent(path.split('/dashboard/')[1]));
+    }
+
+    // RSVP path logic for initial state is complex, simplifying for demo:
+    // If we detected 'form' view above from path parts, we should try to extract slug here.
+    const pathParts = path.split('/').filter(Boolean);
+    if (pathParts.length === 1 && pathParts[0] !== 'assets') {
+      return useState(decodeURIComponent(pathParts[0]));
+    }
+    if (path.endsWith('/rsvp')) {
+      const parts = path.split('/');
+      if (parts.length >= 3) return useState(decodeURIComponent(parts[parts.length - 2]));
+    }
+
+    if (params.get('dashboard')) return useState(params.get('dashboard') || '');
+    if (params.get('rsvp')) return useState(params.get('rsvp') || '');
+    if (params.get('setup')) return useState(params.get('setup') || '');
+
+    // DEMO Root Fallback
+    if (path === '/' && !params.toString()) {
+      return useState('mary&john');
+    }
+
+    return useState('');
+  })();
+
+  const [coupleName, setCoupleName] = useState<string>(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('name')) return decodeURIComponent(params.get('name')!);
+
+    // Demo Root Fallback
+    if (window.location.pathname === '/' && !params.toString()) return 'Mary & John';
+    return '';
+  });
+
   const [isLoadingName, setIsLoadingName] = useState(true);
   const [coverImage, setCoverImage] = useState<string | null>('/freepik__talk__37233.png');
   const [isPreview, setIsPreview] = useState(false);
 
-  // Routing Logic
+  // Routing Effect - simplified to specific updates if needed or browser nav handling
   useEffect(() => {
-    const path = window.location.pathname;
-    const params = new URLSearchParams(window.location.search);
-
-    // 1. Path-based Routing
-    // Supported patterns:
-    // - /dashboard/:slug
-    // - /:slug/rsvp
-    // - /:slug (Main Landing)
-
-    // Check for dashboard
-    if (path.startsWith('/dashboard/')) {
-      const slug = path.split('/dashboard/')[1];
-      if (slug) {
-        setCoupleSlug(decodeURIComponent(slug));
-        setView('dashboard');
-        return;
-      }
-    }
-
-    // Check for RSVP specific path (e.g., /mary&john/rsvp)
-    if (path.endsWith('/rsvp')) {
-      const parts = path.split('/');
-      // Expected format: ["", "mary&john", "rsvp"]
-      if (parts.length >= 3) {
-        const slug = parts[parts.length - 2]; // second to last
-        if (slug) {
-          setCoupleSlug(decodeURIComponent(slug));
-          setView('form');
-          return;
-        }
-      }
-    }
-
-    // Check for Main Landing (/:slug)
-    // We assume any other path with depth 1 is a slug, if it's not a known reserved route
-    const pathParts = path.split('/').filter(Boolean);
-    if (pathParts.length === 1) {
-      const potentialSlug = pathParts[0];
-      // Exclude reserved words if any (e.g. 'assets', 'favicon')
-      if (potentialSlug !== 'assets' && potentialSlug !== 'favicon.ico') {
-        setCoupleSlug(decodeURIComponent(potentialSlug));
-        setView('form'); // Default to guest form/landing
-        return;
-      }
-    }
-
-    // 2. Query Parameter Fallback
-    const rsvpParam = params.get('rsvp');
-    const dashboardParam = params.get('dashboard');
-    const setupParam = params.get('setup');
-    const nameParam = params.get('name');
-
-    if (nameParam) setCoupleName(decodeURIComponent(nameParam));
-
-    if (dashboardParam) {
-      setCoupleSlug(dashboardParam);
-      setView('dashboard');
-    } else if (rsvpParam) {
-      setCoupleSlug(rsvpParam);
-      setView('form');
-    } else if (setupParam) {
-      setCoupleSlug(setupParam);
-      setView('link');
-    } else {
-      // DEMO: Specific landing page for Mary & John
-      const demoSlug = 'mary&john';
-      setCoupleSlug(demoSlug);
-      setCoupleName('Mary & John');
-      setView('form');
-      updateHistory(`/${demoSlug}`);
+    // We strictly use this for DEMO root redirect enforcement if needed,
+    // but the state is already set. We just need to ensure URL matches state if it was '/'
+    if (window.location.pathname === '/') {
+      updateHistory('/mary&john');
     }
   }, []);
 
