@@ -185,19 +185,22 @@ export const Dashboard: React.FC<DashboardProps> = ({ slug, coverImage, onPrevie
           />
 
           {/* Back to Canva Button (Left) */}
-          <div className="hidden md:flex absolute top-6 left-6 z-20 items-center gap-2 p-2 bg-white/60 backdrop-blur-md rounded-2xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.06)] hover:bg-white/80 transition-all duration-300">
-            <a
-              href="https://flormontana.my.canva.site/save-the-date/page-2"
-              target="_blank"
-              rel="noopener noreferrer"
+          <a
+            href="https://flormontana.my.canva.site/save-the-date/page-2"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden md:flex absolute top-6 left-6 z-20"
+          >
+            <Button
+              className="text-white font-serif italic px-5 h-10 border-none flex items-center justify-center transition-all hover:opacity-90 active:scale-95 text-sm"
+              style={{
+                backgroundColor: 'var(--color-primary-500)',
+                boxShadow: '0 4px 12px -2px var(--color-primary-100)'
+              }}
             >
-              <Button
-                className="text-stone-600 hover:text-stone-900 font-serif italic px-5 h-10 border-none flex items-center justify-center transition-all active:scale-95 text-sm bg-transparent hover:bg-white/50"
-              >
-                <ArrowLeft size={16} className="mr-2" /> Back to Canva
-              </Button>
-            </a>
-          </div>
+              <ArrowLeft size={16} className="mr-2" /> Back to Canva
+            </Button>
+          </a>
 
           {/* Floating Desktop Actions Panel */}
           <div className="hidden md:flex absolute top-6 right-6 z-20 items-center gap-2 p-2 bg-white/60 backdrop-blur-md rounded-2xl border border-white/40 shadow-[0_8px_32px_rgba(0,0,0,0.06)] hover:bg-white/80 transition-all duration-300">
