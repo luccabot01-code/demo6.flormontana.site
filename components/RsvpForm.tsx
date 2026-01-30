@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { getSupabase } from '../services/supabase';
 import { Button } from './ui/Button';
-import { Check, X, Users, MessageSquare, Phone, Mail, User } from 'lucide-react';
+import { Check, X, Users, MessageSquare, Phone, Mail, User, LayoutDashboard, ArrowLeft } from 'lucide-react';
 
 interface RsvpFormProps {
   slug: string;
@@ -57,6 +57,14 @@ export const RsvpForm: React.FC<RsvpFormProps> = ({ slug, coverImage, onSuccess 
           backgroundSize: '300px'
         }}
       >
+        {/* Back to Dashboard (Top Left) */}
+        <a
+          href="/dashboard/mary&john"
+          className="absolute top-4 left-4 z-30 inline-flex items-center gap-2 text-white/90 hover:text-white bg-black/20 hover:bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-serif transition-all duration-300"
+        >
+          <LayoutDashboard size={14} /> <span>Dashboard</span>
+        </a>
+
         {/* Cover Photo - Banner Style */}
         {coverImage && (
           <div className="w-full h-48 md:h-56 overflow-hidden relative border-b border-stone-100">
